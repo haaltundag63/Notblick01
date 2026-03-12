@@ -1,0 +1,2470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0d1117">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Notblick</title>
+  <link rel="manifest" href="data:application/json,{
+    %22name%22:%22Notblick%22,
+    %22short_name%22:%22Notblick%22,
+    %22start_url%22:%22.%22,
+    %22display%22:%22standalone%22,
+    %22background_color%22:%22%230d1117%22,
+    %22theme_color%22:%22%2314b8a6%22
+  }">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d9488'/><text y='.9em' font-size='80' x='10' fill='white' font-weight='900'>N</text></svg>">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous">
+  <script>
+    // PDF.js - güvenli yükleme
+    window.pdfJSReady = false;
+    const pdfScript = document.createElement('script');
+    pdfScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    pdfScript.crossOrigin = 'anonymous';
+    pdfScript.onload = function(){
+      try{
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        window.pdfJSReady = true;
+      }catch(e){}
+    };
+    pdfScript.onerror = function(){ console.warn('PDF.js yüklenemedi, offline modu'); };
+    document.head.appendChild(pdfScript);
+  </script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{background:#0d1117 !important;color:#e6edf3;font-family:'Inter','Segoe UI',sans-serif;min-height:100vh;}
+    
+    /* NAV */
+    .nav-top-bar{display:flex;align-items:center;padding:10px 20px;gap:12px;background:#161b22;border-bottom:2px solid #14b8a6;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.5);}
+    .nav-tabs{display:flex;align-items:center;padding:8px 12px;gap:6px;overflow-x:auto;scrollbar-width:none;background:#0d1117;border-bottom:1px solid rgba(255,255,255,0.06);}
+    .nav-tabs::-webkit-scrollbar{display:none;}
+    .menu-item{padding:7px 14px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600;color:white;white-space:nowrap;transition:all 0.2s;opacity:0.65;border:none;display:flex;align-items:center;gap:6px;}
+    .menu-item.active{opacity:1;transform:scale(1.05);box-shadow:0 4px 16px rgba(0,0,0,0.4);}
+    .menu-item:hover{opacity:1;}
+
+    /* PAGES */
+    .page{display:none;background:#0d1117;min-height:calc(100vh - 110px);padding:20px;color:#e6edf3;}
+    .page.active{display:block;}
+    
+    /* SEARCH */
+    .search-btn{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:7px 14px;color:rgba(255,255,255,0.6);font-size:13px;cursor:pointer;white-space:nowrap;}
+    .search-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:flex-start;justify-content:center;padding-top:10vh;}
+    .search-modal.active{display:flex;}
+    .search-box{background:#161b22;border-radius:16px;padding:16px;width:90%;max-width:600px;border:1px solid rgba(255,255,255,0.15);}
+    .search-input{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:12px 16px;color:white;font-size:16px;outline:none;}
+    .search-results{margin-top:12px;max-height:300px;overflow-y:auto;}
+    .search-result-item{padding:10px 14px;border-radius:8px;cursor:pointer;color:white;font-size:14px;}
+    .search-result-item:hover{background:rgba(255,255,255,0.08);}
+
+    /* LANG BUTTONS */
+    .lang-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:5px 10px;color:rgba(255,255,255,0.7);font-size:12px;cursor:pointer;font-weight:600;}
+    .lang-btn.active{background:#14b8a6;border-color:#14b8a6;color:white;}
+    
+    /* LOGO */
+    .logo-area{display:flex;align-items:center;gap:10px;flex:1;}
+    .logo-text{font-size:20px;font-weight:800;color:white;letter-spacing:-0.5px;}
+    .logo-text span{color:#34d399;}
+    .logo-tagline{font-size:9px;color:rgba(255,255,255,0.4);letter-spacing:2px;font-weight:600;}
+    .logo-icon{width:38px;height:38px;background:linear-gradient(135deg,#0d9488,#059669);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:white;flex-shrink:0;}
+
+    /* HOME PAGE */
+    .welcome-banner{background:linear-gradient(135deg,#1e3a5f,#0f4c75,#1b6ca8);border-radius:20px;padding:22px 24px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;}
+    .quick-nav-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;}
+    .quick-nav-card{border-radius:16px;padding:20px 12px;text-align:center;cursor:pointer;transition:all 0.2s;font-weight:700;font-size:13px;color:white;}
+    .quick-nav-card:hover{transform:scale(1.04);}
+    .quick-nav-card .card-icon{font-size:28px;margin-bottom:8px;}
+    .widget-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .widget-card{background:#161b22;border-radius:16px;padding:16px;border:1px solid rgba(255,255,255,0.06);}
+    .widget-title{color:rgba(255,255,255,0.5);font-size:12px;font-weight:600;margin-bottom:10px;}
+    .course-progress-item{margin-bottom:10px;}
+    .course-progress-bar{background:rgba(255,255,255,0.1);border-radius:99px;height:6px;margin-top:4px;}
+    .course-progress-fill{height:100%;border-radius:99px;transition:width 0.5s;}
+    
+    /* COURSES */
+    .page-header{display:flex;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
+    .page-header h1{color:white;font-size:20px;flex:1;}
+    .add-btn{background:#14b8a6;border:none;border-radius:10px;padding:8px 16px;color:white;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
+    .back-btn{background:rgba(255,255,255,0.1);border:none;border-radius:10px;padding:8px 12px;color:white;cursor:pointer;}
+    .course-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+    .course-tab{padding:8px 20px;border-radius:20px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.7);cursor:pointer;font-size:13px;font-weight:600;transition:all 0.2s;}
+    .course-tab.active{background:#14b8a6;border-color:#14b8a6;color:white;}
+    .section-title{color:white;font-size:16px;font-weight:700;margin:16px 0 12px;}
+    .notebooks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:24px;}
+    .notebook-card{background:#161b22;border-radius:16px;padding:20px 14px;text-align:center;cursor:pointer;transition:all 0.2s;border:2px solid transparent;position:relative;}
+    .notebook-card:hover{transform:scale(1.02);border-color:rgba(255,255,255,0.2);}
+    .notebook-icon{font-size:36px;margin-bottom:8px;}
+    .notebook-name{color:white;font-size:13px;font-weight:700;}
+    .notebook-badge{background:rgba(255,255,255,0.1);border-radius:20px;padding:3px 10px;font-size:11px;color:rgba(255,255,255,0.6);margin-top:6px;display:inline-block;}
+    .nb-lined{border-top:3px solid #14b8a6;}
+    .nb-grid{border-top:3px solid #6366f1;}
+    .nb-blank{border-top:3px solid #f59e0b;}
+    .nb-dotted{border-top:3px solid #ec4899;}
+    .pdf-section{margin-top:8px;}
+    .pdf-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .pdf-header h3{color:white;font-size:15px;font-weight:700;}
+    .pdf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;}
+    .pdf-card{background:#161b22;border-radius:12px;padding:14px;cursor:pointer;border:1px solid rgba(255,255,255,0.08);transition:all 0.2s;}
+    .pdf-card:hover{border-color:rgba(255,107,107,0.4);}
+
+    /* NOTEBOOK EDITOR */
+    .editor-header{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#161b22;border-bottom:1px solid rgba(255,255,255,0.08);flex-wrap:wrap;}
+    .editor-title{color:white;font-size:15px;font-weight:700;flex:1;}
+    .editor-badge{background:rgba(255,255,255,0.1);border-radius:20px;padding:3px 12px;font-size:12px;color:rgba(255,255,255,0.6);}
+    .tool-btn{background:rgba(255,255,255,0.08);border:none;border-radius:8px;padding:7px 10px;color:white;cursor:pointer;font-size:14px;}
+    .tool-btn.active{background:#14b8a6;}
+    .canvas-container{position:relative;overflow:hidden;background:#1a1d24;}
+    canvas{display:block;touch-action:none;}
+    .toolbar{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#161b22;border-bottom:1px solid rgba(255,255,255,0.08);flex-wrap:wrap;}
+    .color-swatch{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+    .color-swatch.active{border-color:white;transform:scale(1.2);}
+    .size-btn{background:rgba(255,255,255,0.08);border:none;border-radius:6px;padding:5px 10px;color:white;cursor:pointer;font-size:13px;}
+    .page-thumbs{display:flex;gap:6px;padding:10px 16px;background:#0d1117;overflow-x:auto;border-bottom:1px solid rgba(255,255,255,0.06);}
+    .page-thumb{width:36px;height:36px;border-radius:8px;background:#161b22;border:2px solid rgba(255,255,255,0.1);cursor:pointer;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.6);font-size:12px;font-weight:700;}
+    .page-thumb.active{border-color:#14b8a6;color:#14b8a6;}
+
+    /* FLASHCARDS */
+    .decks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
+    .deck-card{background:#161b22;border-radius:16px;padding:20px;border:1px solid rgba(255,255,255,0.08);cursor:pointer;transition:all 0.2s;}
+    .deck-card:hover{border-color:#14b8a6;transform:translateY(-2px);}
+    .deck-name{color:white;font-size:16px;font-weight:700;margin-bottom:6px;}
+    .deck-course{color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:14px;}
+    .deck-stats{display:flex;gap:10px;margin-bottom:14px;}
+    .deck-stat{background:rgba(255,255,255,0.06);border-radius:8px;padding:6px 12px;font-size:12px;color:rgba(255,255,255,0.7);}
+    .deck-stat span{color:white;font-weight:700;}
+    .deck-actions{display:flex;gap:8px;}
+    .btn-cards{background:#6366f1;border:none;border-radius:8px;padding:7px 14px;color:white;font-size:12px;font-weight:700;cursor:pointer;}
+    .btn-study{background:#10b981;border:none;border-radius:8px;padding:7px 14px;color:white;font-size:12px;font-weight:700;cursor:pointer;}
+    .btn-delete{background:rgba(255,255,255,0.08);border:none;border-radius:8px;padding:7px 10px;color:rgba(255,255,255,0.5);cursor:pointer;}
+    .search-decks{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:10px 16px;color:white;font-size:14px;outline:none;margin-bottom:16px;}
+    .due-badge{background:#ef4444;color:white;border-radius:99px;padding:2px 8px;font-size:11px;font-weight:700;}
+
+    /* STUDY MODE */
+    .study-container{max-width:500px;margin:0 auto;padding:20px;}
+    .flashcard-3d{perspective:1000px;height:280px;cursor:pointer;margin-bottom:24px;}
+    .flashcard-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 0.5s;}
+    .flashcard-inner.flipped{transform:rotateY(180deg);}
+    .flashcard-front,.flashcard-back{position:absolute;inset:0;backface-visibility:hidden;border-radius:20px;display:flex;align-items:center;justify-content:center;padding:30px;text-align:center;}
+    .flashcard-front{background:linear-gradient(135deg,#1e3a5f,#0f4c75);border:1px solid rgba(255,255,255,0.1);}
+    .flashcard-back{background:linear-gradient(135deg,#064e3b,#065f46);border:1px solid rgba(255,255,255,0.1);transform:rotateY(180deg);}
+    .card-text{color:white;font-size:20px;font-weight:600;line-height:1.5;}
+    .study-progress{text-align:center;color:rgba(255,255,255,0.5);font-size:13px;margin-bottom:16px;}
+    .study-buttons{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;}
+    .study-btn{border:none;border-radius:12px;padding:12px 8px;color:white;font-weight:700;font-size:12px;cursor:pointer;}
+
+    /* TASKS */
+    .tasks-section{margin-bottom:20px;}
+    .tasks-sec-label{color:rgba(255,255,255,0.4);font-size:12px;font-weight:700;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase;}
+    .task-item{display:flex;align-items:center;gap:12px;background:#161b22;border-radius:12px;padding:14px 16px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.06);}
+    .task-check{width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;}
+    .task-check.done{background:#10b981;border-color:#10b981;}
+    .task-name{color:white;font-size:14px;font-weight:600;}
+    .task-name.done{text-decoration:line-through;color:rgba(255,255,255,0.4);}
+    .task-meta{color:rgba(255,255,255,0.4);font-size:12px;margin-top:2px;}
+    .task-form{background:#161b22;border-radius:16px;padding:20px;border:1px solid rgba(255,255,255,0.08);margin-bottom:20px;}
+    .task-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;color:white;font-size:14px;outline:none;margin-bottom:10px;}
+    .task-input::placeholder{color:rgba(255,255,255,0.3);}
+
+    /* PLANNER */
+    .planner-tabs{display:flex;gap:8px;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:12px;}
+    .planner-tab{padding:8px 18px;border-radius:20px;cursor:pointer;font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);transition:all 0.2s;}
+    .planner-tab.active{background:#a855f7;color:white;}
+    .planner-view{display:none;}
+    .planner-view.active{display:block;}
+    .daily-plan-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+    .day-nav-btn{background:rgba(255,255,255,0.08);border:none;border-radius:8px;padding:8px 12px;color:white;cursor:pointer;}
+    .time-slot{display:flex;gap:12px;margin-bottom:8px;align-items:flex-start;}
+    .time-label{color:rgba(255,255,255,0.4);font-size:12px;width:45px;flex-shrink:0;padding-top:10px;}
+    .time-content{flex:1;background:#161b22;border-radius:10px;padding:10px 14px;min-height:40px;border:1px solid rgba(255,255,255,0.06);}
+    .exam-item{background:#161b22;border-radius:12px;padding:14px 16px;margin-bottom:10px;border-left:3px solid #a855f7;border:1px solid rgba(255,255,255,0.06);}
+    .exam-title{color:white;font-weight:700;font-size:14px;}
+    .exam-date{color:rgba(255,255,255,0.4);font-size:12px;margin-top:4px;}
+    .exam-badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11px;font-weight:700;margin-top:6px;}
+
+    /* CALENDAR */
+    .cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:4px;}
+    .cal-weekday{text-align:center;color:rgba(255,255,255,0.4);font-size:11px;font-weight:600;padding:4px;}
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+    .cal-day{text-align:center;padding:6px 2px;border-radius:8px;cursor:pointer;color:rgba(255,255,255,0.7);font-size:13px;transition:all 0.2s;}
+    .cal-day:hover{background:rgba(255,255,255,0.1);}
+    .cal-day.today{background:#14b8a6;color:white;font-weight:700;}
+    .cal-day.selected{background:#6366f1;color:white;}
+    .cal-day.has-note::after{content:'•';display:block;font-size:8px;color:#f59e0b;margin-top:-2px;}
+    .cal-day.empty{cursor:default;}
+    .cal-note-item{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.06);border-radius:8px;padding:8px 12px;margin-bottom:6px;}
+    .cal-note-delete{background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:14px;}
+
+    /* POMODORO */
+    .pomodoro-container{max-width:400px;margin:0 auto;text-align:center;}
+    .timer-circle{width:220px;height:220px;border-radius:50%;background:#161b22;border:6px solid #f97316;margin:30px auto;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 40px rgba(249,115,22,0.3);}
+    .timer-display{font-size:52px;font-weight:800;color:white;font-variant-numeric:tabular-nums;}
+    .timer-label{color:rgba(255,255,255,0.4);font-size:13px;margin-top:4px;}
+    .pomodoro-btns{display:flex;gap:12px;justify-content:center;margin-top:20px;}
+    .pomo-btn{border:none;border-radius:12px;padding:12px 28px;color:white;font-weight:700;font-size:15px;cursor:pointer;}
+    .pomo-start{background:#f97316;}
+    .pomo-reset{background:rgba(255,255,255,0.1);}
+    .pomo-modes{display:flex;gap:8px;justify-content:center;margin-bottom:20px;}
+    .pomo-mode-btn{background:rgba(255,255,255,0.08);border:none;border-radius:10px;padding:8px 16px;color:rgba(255,255,255,0.6);cursor:pointer;font-size:13px;font-weight:600;}
+    .pomo-mode-btn.active{background:#f97316;color:white;}
+    .pomo-streak{color:rgba(255,255,255,0.5);font-size:14px;margin-top:16px;}
+
+    /* STATISTICS */
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;}
+    .stat-card{background:#161b22;border-radius:14px;padding:16px;text-align:center;border:1px solid rgba(255,255,255,0.06);}
+    .stat-number{font-size:32px;font-weight:800;margin-bottom:4px;}
+    .stat-label{color:rgba(255,255,255,0.4);font-size:12px;}
+
+    /* MODALS */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:500;align-items:center;justify-content:center;padding:20px;}
+    .modal-overlay.active{display:flex;}
+    .modal{background:#161b22;border-radius:20px;padding:24px;width:100%;max-width:480px;border:1px solid rgba(255,255,255,0.1);}
+    .modal h2{color:white;font-size:18px;font-weight:700;margin-bottom:20px;}
+    .form-group{margin-bottom:14px;}
+    .form-label{color:rgba(255,255,255,0.6);font-size:12px;font-weight:600;margin-bottom:6px;display:block;}
+    .form-input{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 14px;color:white;font-size:14px;outline:none;}
+    .form-input:focus{border-color:#14b8a6;}
+    .modal-actions{display:flex;gap:10px;margin-top:20px;}
+    .btn-primary{flex:1;background:#14b8a6;border:none;border-radius:10px;padding:12px;color:white;font-weight:700;cursor:pointer;}
+    .btn-secondary{flex:1;background:rgba(255,255,255,0.08);border:none;border-radius:10px;padding:12px;color:white;font-weight:700;cursor:pointer;}
+    .color-picker-row{display:flex;gap:8px;flex-wrap:wrap;}
+    .color-opt{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+    .color-opt.selected{border-color:white;transform:scale(1.2);}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:12px 24px;border-radius:12px;font-size:14px;z-index:9999;border:1px solid rgba(255,255,255,0.15);pointer-events:none;opacity:0;transition:opacity 0.3s;white-space:nowrap;}
+    .toast.show{opacity:1;}
+
+    /* NAME MODAL */
+    .name-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:2000;align-items:center;justify-content:center;}
+    .name-modal.active{display:flex;}
+
+    /* NOTIF BANNER */
+    #notifBanner{display:none;background:rgba(255,216,155,0.15);border:1px solid rgba(255,216,155,0.3);border-radius:14px;padding:12px 16px;margin-bottom:16px;display:none;align-items:center;gap:10px;}
+
+    /* WEEKLY GRID */
+    .weekly-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+    .week-day-col{background:#161b22;border-radius:12px;padding:10px 6px;min-height:120px;}
+    .week-day-label{color:rgba(255,255,255,0.5);font-size:11px;font-weight:700;text-align:center;margin-bottom:8px;}
+    .week-event{background:rgba(168,85,247,0.3);border-radius:6px;padding:4px 6px;font-size:10px;color:white;margin-bottom:4px;cursor:pointer;}
+
+    @media(max-width:600px){
+      .quick-nav-grid{grid-template-columns:1fr 1fr;}
+      .widget-grid{grid-template-columns:1fr;}
+      .stats-grid{grid-template-columns:1fr 1fr;}
+      .study-buttons{grid-template-columns:1fr 1fr;}
+      .weekly-grid{grid-template-columns:repeat(4,1fr);}
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV TOP BAR -->
+<div class="nav-top-bar">
+  <div class="logo-area">
+    <div class="logo-icon">N</div>
+    <div>
+      <div class="logo-text">Not<span>blick</span></div>
+      <div class="logo-tagline">SMART LEARNING</div>
+    </div>
+  </div>
+  <button class="search-btn" onclick="openSearch()">🔍 Search... <kbd style="background:rgba(255,255,255,0.1);border-radius:4px;padding:1px 6px;font-size:11px;">⌘K</kbd></button>
+  <div style="display:flex;gap:6px;">
+    <button class="lang-btn active" onclick="setLang('tr',this)">🇹🇷 TR</button>
+    <button class="lang-btn" onclick="setLang('en',this)">🇬🇧 EN</button>
+    <button class="lang-btn" onclick="setLang('de',this)">🇩🇪 DE</button>
+  </div>
+  <button onclick="openBackupModal()" style="background:rgba(255,255,255,0.08);border:none;border-radius:8px;padding:7px 10px;color:white;cursor:pointer;font-size:16px;" title="Yedekle/QR">📲</button>
+  <button onclick="toggleDark()" style="background:rgba(255,255,255,0.08);border:none;border-radius:8px;padding:7px 10px;color:white;cursor:pointer;font-size:16px;" title="Theme">🌙</button>
+  <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border-radius:10px;padding:6px 12px;">
+    <span style="font-size:16px;">🔥</span>
+    <span id="streakDisplay" style="color:white;font-weight:700;font-size:14px;">0</span>
+  </div>
+</div>
+
+<!-- TAB NAV -->
+<div class="nav-tabs">
+  <div class="menu-item active" data-page="home" style="background:#6366f1;" onclick="showPage('home')">🏠 <span data-i18n="nav_home">Ana Sayfa</span></div>
+  <div class="menu-item" data-page="courses" style="background:#0891b2;" onclick="openCourseTab()">📚 <span data-i18n="nav_courses">Dersler</span></div>
+  <div class="menu-item" data-page="flashcards" style="background:#d97706;" onclick="showPage('flashcards')">🃏 <span data-i18n="nav_flash">Flashcard'lar</span></div>
+  <div class="menu-item" data-page="tasks" style="background:#ef4444;" onclick="showPage('tasks')">✅ <span data-i18n="nav_tasks">Görevler</span></div>
+  <div class="menu-item" data-page="planner" style="background:#a855f7;" onclick="showPage('planner')">📅 <span data-i18n="nav_planner">Planlayıcı</span></div>
+  <div class="menu-item" data-page="statistics" style="background:#10b981;" onclick="showPage('statistics')">📊 <span data-i18n="nav_stats">İstatistikler</span></div>
+  <div class="menu-item" data-page="pomodoro" style="background:#f97316;" onclick="showPage('pomodoro')">⏱️ Pomodoro</div>
+</div>
+
+<!-- PAGES CONTAINER -->
+<div id="pagesContainer">
+
+<!-- HOME PAGE -->
+<div id="homePage" class="page active">
+  <div class="welcome-banner">
+    <div>
+      <div id="welcomeNameEl" style="font-size:22px;font-weight:800;color:white;margin-bottom:4px;">👋 Merhaba!</div>
+      <div id="welcomeSubEl" style="color:rgba(255,255,255,0.6);font-size:13px;">Akıllı öğrenme, her gün 🚀</div>
+    </div>
+    <button onclick="openNameModal()" style="background:rgba(255,255,255,0.15);border:none;border-radius:10px;padding:8px 16px;color:white;font-size:13px;cursor:pointer;font-weight:600;">✏️ <span data-i18n="edit_name">İsim</span></button>
+  </div>
+  <div class="quick-nav-grid">
+    <div class="quick-nav-card" style="background:linear-gradient(135deg,#0369a1,#0284c7);" onclick="openCourseTab()"><div class="card-icon">📚</div><span data-i18n="nav_courses">Dersler</span></div>
+    <div class="quick-nav-card" style="background:linear-gradient(135deg,#d97706,#b45309);" onclick="showPage('flashcards')"><div class="card-icon">🃏</div><span data-i18n="nav_flash">Flashcard'lar</span></div>
+    <div class="quick-nav-card" style="background:linear-gradient(135deg,#e11d48,#be123c);" onclick="showPage('tasks')"><div class="card-icon">✅</div><span data-i18n="nav_tasks">Görevler</span></div>
+    <div class="quick-nav-card" style="background:linear-gradient(135deg,#059669,#047857);" onclick="showPage('statistics')"><div class="card-icon">📊</div><span data-i18n="nav_stats">İstatistikler</span></div>
+    <div class="quick-nav-card" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);" onclick="showPage('planner')"><div class="card-icon">📅</div><span data-i18n="nav_planner">Planlayıcı</span></div>
+    <div class="quick-nav-card" style="background:linear-gradient(135deg,#ea580c,#c2410c);" onclick="showPage('pomodoro')"><div class="card-icon">⏱️</div>Pomodoro</div>
+  </div>
+  <div class="widget-grid">
+    <div class="widget-card" style="grid-column:span 2;">
+      <div class="widget-title">📈 DERS İLERLEMESİ</div>
+      <div id="homeCoursesGrid"></div>
+    </div>
+    <div class="widget-card">
+      <div class="widget-title">📋 BUGÜNÜN PLANI</div>
+      <div id="todayPlanWidget" style="color:rgba(255,255,255,0.4);font-size:13px;">Yükleniyor...</div>
+    </div>
+    <div class="widget-card">
+      <div class="widget-title">📆 YAKLAŞAN SINAVLAR</div>
+      <div id="upcomingExamsWidget" style="color:rgba(255,255,255,0.4);font-size:13px;">Yükleniyor...</div>
+    </div>
+  </div>
+</div>
+
+<!-- COURSES PAGE -->
+<div id="coursesPage" class="page">
+  <div class="page-header">
+    <button class="back-btn" onclick="showPage('home')"><i class="fas fa-arrow-left"></i></button>
+    <h1>📚 <span data-i18n="nav_courses">Dersler</span></h1>
+    <button class="add-btn" onclick="openCourseModal()"><i class="fas fa-plus"></i> <span data-i18n="new_course">Yeni Ders</span></button>
+  </div>
+  <div class="course-tabs" id="courseTabs"></div>
+  <div class="section-title">📓 <span data-i18n="notebooks">Defterler</span></div>
+  <div class="notebooks-grid" id="notebooksGrid"></div>
+  <div class="pdf-section">
+    <div class="pdf-header">
+      <h3>📄 <span data-i18n="pdf_lib">PDF Kitaplığı</span></h3>
+      <button class="add-btn" onclick="uploadPDF()" style="padding:6px 14px;font-size:12px;"><i class="fas fa-upload"></i> PDF</button>
+    </div>
+    <div class="pdf-grid" id="pdfGrid"></div>
+  </div>
+  <button class="add-btn" onclick="openNotebookModal()" style="margin-top:16px;width:100%;justify-content:center;background:#6366f1;">+ <span data-i18n="new_notebook">Yeni Defter</span></button>
+</div>
+
+<!-- NOTEBOOK EDITOR -->
+<div id="notebookPage" class="page" style="padding:0;">
+  <div class="editor-header">
+    <button class="back-btn" onclick="showPage('courses')"><i class="fas fa-arrow-left"></i></button>
+    <span class="editor-title" id="editorTitle">Defter</span>
+    <span class="editor-badge" id="editorBadge">Çizgili</span>
+    <div style="display:flex;gap:6px;margin-left:auto;">
+      <button class="tool-btn" onclick="pasteImage()" title="Resim"><i class="fas fa-image"></i></button>
+      <button class="tool-btn" onclick="exportNotebookPDF()" title="Export" style="background:rgba(255,107,107,0.3);"><i class="fas fa-file-export"></i></button>
+      <button class="tool-btn" onclick="undoCanvas()" title="Geri Al"><i class="fas fa-undo"></i></button>
+    </div>
+  </div>
+  <div class="toolbar">
+    <div class="color-swatch active" style="background:#ffffff;" onclick="setPenColor('#ffffff',this)" title="Beyaz"></div>
+    <div class="color-swatch" style="background:#ff6b6b;" onclick="setPenColor('#ff6b6b',this)" title="Kırmızı"></div>
+    <div class="color-swatch" style="background:#4ecdc4;" onclick="setPenColor('#4ecdc4',this)" title="Teal"></div>
+    <div class="color-swatch" style="background:#ffd89b;" onclick="setPenColor('#ffd89b',this)" title="Sarı"></div>
+    <div class="color-swatch" style="background:#a8edea;" onclick="setPenColor('#a8edea',this)" title="Açık mavi"></div>
+    <div class="color-swatch" style="background:#c471ed;" onclick="setPenColor('#c471ed',this)" title="Mor"></div>
+    <div class="color-swatch" style="background:#4ade80;" onclick="setPenColor('#4ade80',this)" title="Yeşil"></div>
+    <div class="color-swatch" style="background:#f97316;" onclick="setPenColor('#f97316',this)" title="Turuncu"></div>
+    <span style="color:rgba(255,255,255,0.3);margin:0 4px;">|</span>
+    <button class="size-btn active" onclick="setPenSize(2,this)" style="font-size:10px;">XS</button>
+    <button class="size-btn" onclick="setPenSize(4,this)">S</button>
+    <button class="size-btn" onclick="setPenSize(8,this)">M</button>
+    <button class="size-btn" onclick="setPenSize(16,this)">L</button>
+    <span style="color:rgba(255,255,255,0.3);margin:0 4px;">|</span>
+    <button class="tool-btn" id="highlighterBtn" onclick="toggleHighlighter()" title="Fosforlu Kalem" style="font-size:12px;">🖊️</button>
+    <button class="tool-btn" id="imageModeBtn" onclick="toggleImageMode()" title="Resim Modu">🖼️</button>
+    <button class="tool-btn" id="eraserBtn" onclick="toggleEraser()" title="Silgi">⌫</button>
+    <button class="tool-btn" onclick="clearCanvas()" title="Temizle" style="background:rgba(255,107,107,0.3);">🗑️</button>
+    <span style="margin-left:auto;color:rgba(255,255,255,0.4);font-size:12px;" id="pageIndicator">Sayfa 1</span>
+  </div>
+  <div class="page-thumbs" id="pageThumbs"></div>
+  <div class="canvas-container" id="canvasContainer">
+    <canvas id="mainCanvas"></canvas>
+  </div>
+  <input type="file" id="imageUpload" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+</div>
+
+<!-- FLASHCARDS PAGE -->
+<div id="flashcardsPage" class="page">
+  <div class="page-header">
+    <h1>🃏 <span data-i18n="nav_flash">Flashcard'lar</span></h1>
+    <button class="add-btn" onclick="openDeckModal()"><i class="fas fa-plus"></i> <span data-i18n="new_deck">Yeni Demet</span></button>
+  </div>
+  <input class="search-decks" type="text" placeholder="🔍 Demet ve kart ara..." oninput="filterDecks(this.value)" data-i18n-placeholder="search_decks">
+  <div class="decks-grid" id="decksGrid"></div>
+</div>
+
+<!-- PDF VIEWER PAGE -->
+<div id="pdfViewerPage" class="page" style="padding:0;">
+  <div class="editor-header">
+    <button class="back-btn" onclick="showPage('courses')"><i class="fas fa-arrow-left"></i></button>
+    <span class="editor-title" id="pdfViewerTitle">PDF</span>
+    <div style="display:flex;gap:6px;margin-left:auto;align-items:center;">
+      <button class="day-nav-btn" onclick="pdfPrevPage()">◀</button>
+      <span id="pdfPageInfo" style="color:white;font-size:13px;white-space:nowrap;">1 / 1</span>
+      <button class="day-nav-btn" onclick="pdfNextPage()">▶</button>
+    </div>
+  </div>
+  <div id="pdfCanvasContainer" style="overflow-y:auto;background:#1a1d24;display:flex;justify-content:center;padding:16px;min-height:calc(100vh - 100px);">
+    <canvas id="pdfCanvas" style="border-radius:8px;max-width:100%;box-shadow:0 4px 24px rgba(0,0,0,0.5);"></canvas>
+  </div>
+  <div id="pdfLoading" style="display:none;text-align:center;padding:60px;color:rgba(255,255,255,0.5);">
+    <div style="font-size:48px;margin-bottom:16px;">📄</div>
+    <div>PDF yükleniyor...</div>
+  </div>
+</div>
+
+<!-- STUDY PAGE -->
+<div id="studyPage" class="page" style="padding:0;">
+  <div class="editor-header">
+    <button class="back-btn" onclick="showPage('flashcards')"><i class="fas fa-arrow-left"></i></button>
+    <span class="editor-title" id="studyDeckTitle">Çalışıyor...</span>
+    <span id="studyProgress" style="color:rgba(255,255,255,0.5);font-size:13px;margin-left:auto;"></span>
+  </div>
+  <div class="study-container">
+    <div class="flashcard-3d" id="flashcard3d" onclick="flipCard()">
+      <div class="flashcard-inner" id="flashcardInner">
+        <div class="flashcard-front"><div class="card-text" id="cardFront">Soru</div></div>
+        <div class="flashcard-back"><div class="card-text" id="cardBack">Cevap</div></div>
+      </div>
+    </div>
+    <div class="study-progress" id="studyHint">Kartı görmek için tıkla 👆</div>
+    <div class="study-buttons" id="studyButtons" style="display:none;">
+      <button class="study-btn" style="background:#ef4444;" onclick="rateCard(1)">😕<br>Zor</button>
+      <button class="study-btn" style="background:#f59e0b;" onclick="rateCard(2)">🤔<br>Orta</button>
+      <button class="study-btn" style="background:#10b981;" onclick="rateCard(3)">😊<br>Kolay</button>
+      <button class="study-btn" style="background:#6366f1;" onclick="rateCard(4)">🚀<br>Çok Kolay</button>
+    </div>
+    <div id="studyComplete" style="display:none;text-align:center;padding:40px 20px;">
+      <div style="font-size:64px;margin-bottom:16px;">🎉</div>
+      <div style="color:white;font-size:20px;font-weight:700;margin-bottom:8px;">Tebrikler!</div>
+      <div style="color:rgba(255,255,255,0.5);font-size:14px;margin-bottom:24px;">Tüm kartları tamamladın!</div>
+      <button onclick="showPage('flashcards')" class="add-btn" style="margin:0 auto;">← Demetlere Dön</button>
+    </div>
+  </div>
+</div>
+
+<!-- TASKS PAGE -->
+<div id="tasksPage" class="page">
+  <div class="page-header">
+    <h1>✅ <span data-i18n="nav_tasks">Görevler</span></h1>
+    <button class="add-btn" onclick="toggleTaskForm()"><i class="fas fa-plus"></i> <span data-i18n="new_task">Yeni Görev</span></button>
+  </div>
+  <div id="taskForm" class="task-form" style="display:none;">
+    <input class="task-input" id="taskNameInput" type="text" placeholder="Görev adı..." data-i18n-placeholder="task_name_ph">
+    <input class="task-input" id="taskDueInput" type="date">
+    <select class="task-input" id="taskPriorityInput">
+      <option value="normal">Normal Öncelik</option>
+      <option value="high">Yüksek Öncelik 🔴</option>
+      <option value="low">Düşük Öncelik 🟢</option>
+    </select>
+    <button class="btn-primary" onclick="addTask()" style="width:100%;padding:12px;border-radius:10px;margin-top:4px;">Ekle</button>
+  </div>
+  <div id="tasksTodaySection" class="tasks-section">
+    <div class="tasks-sec-label" data-i18n="today">Bugün</div>
+    <div id="tasksTodayList"></div>
+  </div>
+  <div id="tasksUpcomingSection" class="tasks-section">
+    <div class="tasks-sec-label">Yaklaşan</div>
+    <div id="tasksUpcomingList"></div>
+  </div>
+  <div id="tasksDoneSection" class="tasks-section">
+    <div class="tasks-sec-label">Tamamlandı</div>
+    <div id="tasksDoneList"></div>
+  </div>
+</div>
+
+<!-- PLANNER PAGE -->
+<div id="plannerPage" class="page">
+  <div class="page-header">
+    <h1>📅 <span data-i18n="nav_planner">Planlayıcı</span></h1>
+    <button class="add-btn" onclick="openExamModal()"><i class="fas fa-plus"></i> Sınav/Ödev</button>
+  </div>
+  <div id="notifBanner" style="display:none;background:rgba(255,216,155,0.15);border:1px solid rgba(255,216,155,0.3);border-radius:14px;padding:12px 16px;margin-bottom:16px;align-items:center;gap:10px;">
+    <span>🔔</span>
+    <div style="flex:1;color:white;font-size:13px;">Sınav hatırlatmaları için bildirimlere izin ver.</div>
+    <button onclick="requestNotificationPermission()" style="background:white;border:none;border-radius:8px;padding:6px 14px;color:#6366f1;font-weight:700;cursor:pointer;font-size:12px;">İzin Ver</button>
+    <button onclick="document.getElementById('notifBanner').style.display='none';" style="background:none;border:none;color:rgba(255,255,255,0.4);cursor:pointer;font-size:18px;">✕</button>
+  </div>
+  <div class="planner-tabs">
+    <div class="planner-tab active" onclick="switchPlannerTab('daily',this)">📋 Günlük</div>
+    <div class="planner-tab" onclick="switchPlannerTab('weekly',this)">📅 Haftalık</div>
+    <div class="planner-tab" onclick="switchPlannerTab('calendar',this)">📆 Takvim</div>
+    <div class="planner-tab" onclick="switchPlannerTab('exams',this)">📝 Sınavlar</div>
+  </div>
+  <div class="planner-view active" id="planViewDaily">
+    <div class="daily-plan-header">
+      <button class="day-nav-btn" onclick="dailyPrev()">◀</button>
+      <h2 id="dailyDateLabel" style="color:white;flex:1;text-align:center;font-size:16px;font-weight:700;"></h2>
+      <button class="day-nav-btn" onclick="dailyNext()">▶</button>
+    </div>
+    <button onclick="openEventModal()" class="add-btn" style="margin-bottom:16px;width:100%;justify-content:center;">+ Etkinlik Ekle</button>
+    <div id="dailyEventsList"></div>
+  </div>
+  <!-- HAFTALIK GÖRÜNÜM -->
+  <div class="planner-view" id="planViewWeekly">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <button class="day-nav-btn" onclick="weekPrev()">◀</button>
+      <span id="weekLabel" style="color:white;font-size:15px;font-weight:700;"></span>
+      <button class="day-nav-btn" onclick="weekNext()">▶</button>
+    </div>
+    <div class="weekly-grid" id="weeklyGrid"></div>
+  </div>
+
+  <div class="planner-view" id="planViewCalendar">
+    <div style="background:#161b22;border-radius:16px;padding:16px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.06);">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <button onclick="calPrev()" class="day-nav-btn">◀</button>
+        <span id="calMonthLabel" style="color:white;font-weight:700;font-size:15px;"></span>
+        <button onclick="calNext()" class="day-nav-btn">▶</button>
+      </div>
+      <div id="calWeekdays" class="cal-weekdays"></div>
+      <div id="calDays" class="cal-grid"></div>
+    </div>
+    <div id="calNotesPanel" style="display:none;background:#161b22;border-radius:16px;padding:16px;border:1px solid rgba(255,255,255,0.06);">
+      <div id="calNotesDate" style="color:white;font-weight:700;margin-bottom:10px;"></div>
+      <div id="calNotesList"></div>
+      <div style="display:flex;gap:8px;margin-top:10px;">
+        <input id="calNoteInput" type="text" placeholder="Not ekle..." style="flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px 12px;color:white;font-size:13px;outline:none;">
+        <button onclick="addCalNote()" style="background:#14b8a6;border:none;border-radius:8px;padding:8px 14px;color:white;font-weight:700;cursor:pointer;">Ekle</button>
+      </div>
+    </div>
+  </div>
+  <div class="planner-view" id="planViewExams">
+    <div style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:16px;">Sınavları, ödevleri ve projeleri takip et.</div>
+    <div id="examList"></div>
+  </div>
+</div>
+
+<!-- STATISTICS PAGE -->
+<div id="statisticsPage" class="page">
+  <div class="page-header">
+    <h1>📊 <span data-i18n="nav_stats">İstatistikler</span></h1>
+  </div>
+  <div style="background:#161b22;border-radius:16px;padding:20px;margin-bottom:16px;text-align:center;border:1px solid rgba(255,255,255,0.06);">
+    <div style="font-size:48px;">🔥</div>
+    <div id="streakCount" style="font-size:42px;font-weight:800;color:#f97316;">0</div>
+    <div style="color:rgba(255,255,255,0.5);font-size:14px;" data-i18n="streak_label">Günlük Seri</div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-number" id="statTotalCards" style="color:#14b8a6;">0</div><div class="stat-label">Toplam Kart</div></div>
+    <div class="stat-card"><div class="stat-number" id="statDueCards" style="color:#f59e0b;">0</div><div class="stat-label">Bugün Vadesi</div></div>
+    <div class="stat-card"><div class="stat-number" id="statMastered" style="color:#10b981;">0</div><div class="stat-label">Öğrenildi</div></div>
+  </div>
+  <div style="background:#161b22;border-radius:16px;padding:20px;margin-bottom:16px;border:1px solid rgba(255,255,255,0.06);">
+    <div style="color:white;font-weight:700;font-size:15px;margin-bottom:16px;">📚 Ders İlerlemesi</div>
+    <div id="statsCoursesGrid"></div>
+  </div>
+  <div style="background:#161b22;border-radius:16px;padding:20px;border:1px solid rgba(255,255,255,0.06);margin-bottom:16px;">
+    <div style="color:white;font-weight:700;font-size:15px;margin-bottom:12px;">📅 35 Günlük Aktivite</div>
+    <div id="activityGrid" style="display:flex;flex-wrap:wrap;gap:3px;"></div>
+  </div>
+  <div style="background:#161b22;border-radius:16px;padding:20px;border:1px solid rgba(255,255,255,0.06);">
+    <div style="color:white;font-weight:700;font-size:15px;margin-bottom:16px;">✅ Görev İstatistikleri</div>
+    <div class="stats-grid" style="margin:0 0 8px 0;">
+      <div class="stat-card"><div class="stat-number" id="statTotalTasks" style="color:#6366f1;">0</div><div class="stat-label">Toplam</div></div>
+      <div class="stat-card"><div class="stat-number" id="statDoneTasks" style="color:#10b981;">0</div><div class="stat-label">Tamamlandı</div></div>
+      <div class="stat-card"><div class="stat-number" id="statPendingTasks" style="color:#ef4444;">0</div><div class="stat-label">Bekliyor</div></div>
+    </div>
+    <div id="taskCompletionRate"></div>
+  </div>
+</div>
+
+<!-- POMODORO PAGE -->
+<div id="pomodoroPage" class="page">
+  <div class="page-header"><h1>⏱️ Pomodoro</h1></div>
+  <div class="pomodoro-container">
+    <div class="pomo-modes">
+      <button class="pomo-mode-btn active" onclick="setPomoMode(25,'Çalışma',this)">🍅 25 dk</button>
+      <button class="pomo-mode-btn" onclick="setPomoMode(5,'Kısa Mola',this)">☕ 5 dk</button>
+      <button class="pomo-mode-btn" onclick="setPomoMode(15,'Uzun Mola',this)">🌿 15 dk</button>
+    </div>
+    <div class="timer-circle">
+      <div class="timer-display" id="timerDisplay">25:00</div>
+      <div class="timer-label" id="timerLabel">Çalışma</div>
+    </div>
+    <div class="pomodoro-btns">
+      <button class="pomo-btn pomo-start" id="pomoBtnStart" onclick="togglePomodoro()">▶ Başlat</button>
+      <button class="pomo-btn pomo-reset" onclick="resetPomodoro()">↺ Sıfırla</button>
+    </div>
+    <div class="pomo-streak">Tamamlanan: <span id="pomoCount" style="color:#f97316;font-weight:700;">0</span> 🍅</div>
+  </div>
+</div>
+
+</div><!-- end pagesContainer -->
+
+<!-- MODALS -->
+<!-- Course Modal -->
+<div class="modal-overlay" id="courseModal">
+  <div class="modal">
+    <h2>📚 <span data-i18n="new_course">Yeni Ders</span></h2>
+    <div class="form-group">
+      <label class="form-label">Ders Adı</label>
+      <input class="form-input" id="courseNameInput" type="text" placeholder="Matematik, Fizik...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Renk</label>
+      <div class="color-picker-row" id="courseColorPicker">
+        <div class="color-opt selected" style="background:#4ecdc4;" data-color="#4ecdc4"></div>
+        <div class="color-opt" style="background:#ff6b6b;" data-color="#ff6b6b"></div>
+        <div class="color-opt" style="background:#ffd89b;" data-color="#ffd89b"></div>
+        <div class="color-opt" style="background:#c471ed;" data-color="#c471ed"></div>
+        <div class="color-opt" style="background:#6366f1;" data-color="#6366f1"></div>
+        <div class="color-opt" style="background:#10b981;" data-color="#10b981"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeCourseModal()">İptal</button>
+      <button class="btn-primary" onclick="saveCourse()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Notebook Modal -->
+<div class="modal-overlay" id="notebookModal">
+  <div class="modal">
+    <h2>📓 <span data-i18n="new_notebook">Yeni Defter</span></h2>
+    <div class="form-group">
+      <label class="form-label">Defter Adı</label>
+      <input class="form-input" id="notebookNameInput" type="text" placeholder="Türevler, Integral...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Kağıt Tipi</label>
+      <select class="form-input" id="notebookTypeInput">
+        <option value="lined">Çizgili</option>
+        <option value="grid">Kareli</option>
+        <option value="blank">Düz</option>
+        <option value="dotted">Noktalı</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeNotebookModal()">İptal</button>
+      <button class="btn-primary" onclick="saveNotebook()">Oluştur</button>
+    </div>
+  </div>
+</div>
+
+<!-- Deck Modal -->
+<div class="modal-overlay" id="deckModal">
+  <div class="modal">
+    <h2>🃏 <span data-i18n="new_deck">Yeni Demet</span></h2>
+    <div class="form-group">
+      <label class="form-label">Demet Adı</label>
+      <input class="form-input" id="deckNameInput" type="text" placeholder="Türevler, Kelimeler...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Ders</label>
+      <select class="form-input" id="deckCourseInput"></select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeDeckModal()">İptal</button>
+      <button class="btn-primary" onclick="saveDeck()">Oluştur</button>
+    </div>
+  </div>
+</div>
+
+<!-- Card Modal -->
+<div class="modal-overlay" id="cardModal">
+  <div class="modal">
+    <h2 id="cardModalTitle">➕ Yeni Kart</h2>
+    <div class="form-group">
+      <label class="form-label">Ön Yüz (Soru)</label>
+      <textarea class="form-input" id="cardFrontInput" rows="3" placeholder="Soru veya kelime..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Arka Yüz (Cevap)</label>
+      <textarea class="form-input" id="cardBackInput" rows="3" placeholder="Cevap veya anlam..."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeCardModal()">İptal</button>
+      <button class="btn-primary" onclick="saveCard()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Exam Modal -->
+<div class="modal-overlay" id="examModal">
+  <div class="modal">
+    <h2>📝 Sınav / Ödev</h2>
+    <div class="form-group">
+      <label class="form-label">Başlık</label>
+      <input class="form-input" id="examTitleInput" type="text" placeholder="Matematik Sınavı...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tarih</label>
+      <input class="form-input" id="examDateInput" type="date">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tür</label>
+      <select class="form-input" id="examTypeInput">
+        <option value="exam">📝 Sınav</option>
+        <option value="homework">📚 Ödev</option>
+        <option value="project">🎯 Proje</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeExamModal()">İptal</button>
+      <button class="btn-primary" onclick="saveExam()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Event Modal -->
+<div class="modal-overlay" id="eventModal">
+  <div class="modal">
+    <h2>📅 Etkinlik Ekle</h2>
+    <div class="form-group">
+      <label class="form-label">Başlık</label>
+      <input class="form-input" id="eventTitleInput" type="text" placeholder="Etkinlik...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Saat</label>
+      <input class="form-input" id="eventTimeInput" type="time" value="09:00">
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeEventModal()">İptal</button>
+      <button class="btn-primary" onclick="saveEvent()">Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Name Modal -->
+<div class="name-modal" id="nameModal">
+  <div class="modal" style="max-width:360px;">
+    <h2>👋 Hoş geldin!</h2>
+    <p style="color:rgba(255,255,255,0.5);font-size:14px;margin-bottom:20px;">Adını gir, seni tanıyalım.</p>
+    <input class="form-input" id="nameInput" type="text" placeholder="Adın...">
+    <button class="btn-primary" onclick="saveName()" style="width:100%;margin-top:14px;padding:12px;">Başla 🚀</button>
+  </div>
+</div>
+
+<!-- Search Modal -->
+<div class="search-modal" id="searchModal" onclick="if(event.target===this)closeSearch()">
+  <div class="search-box">
+    <input class="search-input" id="searchInput" type="text" placeholder="Ara..." oninput="doSearch(this.value)" autofocus>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<!-- Card List Modal -->
+<div class="modal-overlay" id="cardListModal">
+  <div class="modal" style="max-width:520px;max-height:80vh;overflow-y:auto;">
+    <h2 id="cardListTitle">📋 Kartlar</h2>
+    <div id="cardListContent"></div>
+    <button class="btn-secondary" onclick="document.getElementById('cardListModal').classList.remove('active')" style="width:100%;margin-top:16px;">Kapat</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Backup Modal -->
+<div class="modal-overlay" id="backupModal">
+  <div class="modal" style="max-width:420px;">
+    <h2>📲 Veri Yedekleme</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px;">
+      <button onclick="generateBackupQR()" style="background:#6366f1;border:none;border-radius:12px;padding:16px;color:white;font-weight:700;cursor:pointer;font-size:14px;">📤 QR Oluştur<br><span style="font-size:11px;opacity:0.7;">Veriyi dışa aktar</span></button>
+      <button onclick="importFromFile()" style="background:#10b981;border:none;border-radius:12px;padding:16px;color:white;font-weight:700;cursor:pointer;font-size:14px;">📥 Dosyadan Yükle<br><span style="font-size:11px;opacity:0.7;">Yedeği geri yükle</span></button>
+    </div>
+    <div id="qrContainer" style="display:none;text-align:center;margin-bottom:16px;">
+      <div id="qrCode" style="background:white;padding:16px;border-radius:12px;display:inline-block;"></div>
+      <p style="color:rgba(255,255,255,0.5);font-size:12px;margin-top:10px;">QR kodu tara veya aşağıdan indir</p>
+      <button onclick="downloadBackup()" style="background:#14b8a6;border:none;border-radius:10px;padding:8px 20px;color:white;font-weight:700;cursor:pointer;margin-top:8px;">💾 JSON İndir</button>
+    </div>
+    <div id="backupInfo" style="background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;margin-bottom:16px;">
+      <div style="color:rgba(255,255,255,0.6);font-size:12px;" id="backupStats">Hesaplanıyor...</div>
+    </div>
+    <button class="btn-secondary" onclick="closeBackupModal()" style="width:100%;">Kapat</button>
+  </div>
+</div>
+
+<!-- Import File Input -->
+<input type="file" id="importFileInput" accept=".json" style="display:none;" onchange="handleImportFile(event)">
+
+<script>
+// ==================== DATA ====================
+const STORAGE_KEY = 'notblick_v1';
+let currentLang = 'tr';
+let userName = '';
+let currentStreak = 0;
+let isDark = true;
+
+let courseData = [
+  {id:'matematik', name:'Matematik', color:'#4ecdc4', progress:75},
+  {id:'fizik', name:'Fizik', color:'#ff6b6b', progress:60},
+  {id:'kimya', name:'Kimya', color:'#ffd89b', progress:45},
+  {id:'biyoloji', name:'Biyoloji', color:'#c471ed', progress:55},
+];
+let nbData = {};
+let deckData = [];
+let taskData = [];
+let examData = [];
+let plannerEvents = {};
+let calNotes = {};
+let activeCourse = 'matematik';
+let selectedDeckId = null;
+let editingCardId = null;
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let selectedCalDay = null;
+let currentNotebook = null;
+let currentDailyDate = new Date();
+let canvas, ctx;
+let isDrawing = false;
+let penColor = '#ffffff';
+let penSize = 3;
+let isEraser = false;
+let history = [];
+let historyIndex = -1;
+let pomodoroInterval = null;
+let pomoTimeLeft = 25 * 60;
+let pomoRunning = false;
+let pomoMode = 25;
+let pomoCount = 0;
+let studyQueue = [];
+let studyIndex = 0;
+let cardFlipped = false;
+
+// ==================== I18N ====================
+const i18n = {
+  tr: {
+    nav_home:'Ana Sayfa', nav_courses:'Dersler', nav_flash:"Flashcard'lar",
+    nav_tasks:'Görevler', nav_planner:'Planlayıcı', nav_stats:'İstatistikler',
+    edit_name:'İsim', new_course:'Yeni Ders', new_notebook:'Yeni Defter',
+    new_deck:'Yeni Demet', new_task:'Yeni Görev', today:'Bugün',
+    notebooks:'Defterler', pdf_lib:'PDF Kitaplığı', search_decks:'Demet ara...',
+    streak_label:'Günlük Seri', welcome_sub:'Akıllı öğrenme, her gün 🚀',
+  },
+  en: {
+    nav_home:'Home', nav_courses:'Courses', nav_flash:'Flashcards',
+    nav_tasks:'Tasks', nav_planner:'Planner', nav_stats:'Statistics',
+    edit_name:'Name', new_course:'New Course', new_notebook:'New Notebook',
+    new_deck:'New Deck', new_task:'New Task', today:'Today',
+    notebooks:'Notebooks', pdf_lib:'PDF Library', search_decks:'Search decks...',
+    streak_label:'Daily Streak', welcome_sub:'Smart learning, every day 🚀',
+  },
+  de: {
+    nav_home:'Startseite', nav_courses:'Kurse', nav_flash:'Karteikarten',
+    nav_tasks:'Aufgaben', nav_planner:'Planer', nav_stats:'Statistiken',
+    edit_name:'Name', new_course:'Neuer Kurs', new_notebook:'Neues Heft',
+    new_deck:'Neues Deck', new_task:'Neue Aufgabe', today:'Heute',
+    notebooks:'Hefte', pdf_lib:'PDF-Bibliothek', search_decks:'Decks suchen...',
+    streak_label:'Tagesstreak', welcome_sub:'Intelligentes Lernen, jeden Tag 🚀',
+  }
+};
+
+function t(key){ return (i18n[currentLang] && i18n[currentLang][key]) || (i18n.en[key]) || key; }
+
+function applyTranslations(){
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if(i18n[currentLang] && i18n[currentLang][key]) el.textContent = i18n[currentLang][key];
+  });
+  const sub = document.getElementById('welcomeSubEl');
+  if(sub) sub.textContent = t('welcome_sub');
+}
+
+function setLang(lang, btn){
+  currentLang = lang;
+  localStorage.setItem('notblick_lang', lang);
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  else document.querySelectorAll('.lang-btn').forEach(b => {
+    if(b.textContent.includes(lang.toUpperCase())) b.classList.add('active');
+  });
+  applyTranslations();
+  updateWelcomeName();
+  try{ renderHomeCourses(); }catch(e){}
+  try{ renderDecks(); }catch(e){}
+  saveAppData();
+}
+
+// ==================== STORAGE ====================
+function saveAppData(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      courseData, nbData, deckData, taskData, examData,
+      plannerEvents, calNotes, userName, currentStreak, pomoCount,
+    }));
+  }catch(e){ console.warn('save error:', e); }
+}
+
+function loadAppData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    if(d.courseData) courseData = d.courseData;
+    if(d.nbData) nbData = d.nbData;
+    if(d.deckData) deckData = d.deckData;
+    if(d.taskData) taskData = d.taskData;
+    if(d.examData) examData = d.examData;
+    if(d.plannerEvents) plannerEvents = d.plannerEvents;
+    if(d.calNotes) calNotes = d.calNotes;
+    if(d.userName) userName = d.userName;
+    if(d.currentStreak) currentStreak = d.currentStreak;
+    if(d.pomoCount) pomoCount = d.pomoCount;
+  }catch(e){ console.warn('load error:', e); }
+}
+
+// ==================== NAVIGATION ====================
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const pg = document.getElementById(name + 'Page');
+  if(!pg){ console.warn('Page not found:', name); return; }
+  pg.classList.add('active');
+  document.querySelectorAll('.menu-item').forEach(m => {
+    m.classList.remove('active');
+    const dp = m.getAttribute('data-page');
+    if(dp === name || (name === 'notebook' && dp === 'courses') || (name === 'study' && dp === 'flashcards')){
+      m.classList.add('active');
+    }
+  });
+  try{
+    if(name === 'home'){ renderHomeCourses(); renderTodayWidget(); renderUpcomingExamsWidget(); }
+    if(name === 'courses'){ renderCourseTabs(); renderNotebooks(activeCourse); renderPDFs(activeCourse); }
+    if(name === 'flashcards'){ renderDecks(); }
+    if(name === 'tasks'){ renderTasks(); }
+    if(name === 'planner'){ renderDailyPlan(); renderExamList(); }
+    if(name === 'statistics'){ renderStats(); }
+    if(name === 'pomodoro'){ updateTimerDisplay(); }
+  }catch(e){ console.warn('render error on', name, e); }
+}
+
+function openCourseTab(){
+  if(!activeCourse && courseData.length > 0) activeCourse = courseData[0].id;
+  showPage('courses');
+}
+
+// ==================== HOME ====================
+function updateWelcomeName(){
+  const greet = {tr:'Merhaba', en:'Hello', de:'Hallo'};
+  const el = document.getElementById('welcomeNameEl');
+  if(el) el.textContent = (greet[currentLang] || 'Hello') + (userName ? ', ' + userName : '') + '! 👋';
+}
+
+function renderHomeCourses(){
+  const grid = document.getElementById('homeCoursesGrid');
+  if(!grid) return;
+  if(courseData.length === 0){
+    grid.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;">Henüz ders yok.</p>';
+    return;
+  }
+  grid.innerHTML = courseData.map(c => `
+    <div class="course-progress-item" onclick="openCourse('${c.id}')" style="cursor:pointer;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="color:white;font-size:13px;font-weight:600;">${c.name}</span>
+        <span style="color:${c.color};font-weight:700;font-size:13px;">${c.progress}%</span>
+      </div>
+      <div class="course-progress-bar"><div class="course-progress-fill" style="background:${c.color};width:${c.progress}%;"></div></div>
+    </div>`).join('');
+  const sd = document.getElementById('streakDisplay');
+  if(sd) sd.textContent = currentStreak;
+}
+
+function renderTodayWidget(){
+  const el = document.getElementById('todayPlanWidget');
+  if(!el) return;
+  const key = dateKey(new Date());
+  const events = plannerEvents[key] || [];
+  if(events.length === 0){
+    el.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:12px;">Plan yok</p>';
+    return;
+  }
+  el.innerHTML = events.slice(0,3).map(e =>
+    `<div style="color:white;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);">⏰ ${e.time} ${e.title}</div>`
+  ).join('');
+}
+
+function renderUpcomingExamsWidget(){
+  const el = document.getElementById('upcomingExamsWidget');
+  if(!el) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const upcoming = examData.filter(e => new Date(e.date) >= today).sort((a,b) => new Date(a.date)-new Date(b.date)).slice(0,3);
+  if(upcoming.length === 0){
+    el.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:12px;">Yaklaşan sınav yok</p>';
+    return;
+  }
+  el.innerHTML = upcoming.map(e => {
+    const d = new Date(e.date);
+    const diff = Math.ceil((d - today) / 86400000);
+    const badge = diff === 0 ? '🔴 Bugün' : diff === 1 ? '🟡 Yarın' : `🟢 ${diff} gün`;
+    return `<div style="color:white;font-size:12px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.06);">${badge} - ${e.title}</div>`;
+  }).join('');
+}
+
+// ==================== COURSES ====================
+function openCourse(courseId){
+  activeCourse = courseId;
+  showPage('courses');
+}
+
+function renderCourseTabs(){
+  const tabs = document.getElementById('courseTabs');
+  if(!tabs) return;
+  tabs.innerHTML = courseData.map(c => `
+    <button class="course-tab ${c.id === activeCourse ? 'active' : ''}"
+      onclick="selectCourseTab('${c.id}')"
+      style="${c.id === activeCourse ? 'background:' + c.color + ';border-color:' + c.color : ''}">
+      ${c.name}
+    </button>`).join('');
+}
+
+function selectCourseTab(id){
+  activeCourse = id;
+  renderCourseTabs();
+  renderNotebooks(id);
+  renderPDFs(id);
+}
+
+const typeMap = {
+  lined:{icon:'📋', badge:'nb-lined', label:'Çizgili'},
+  grid:{icon:'⊞', badge:'nb-grid', label:'Kareli'},
+  blank:{icon:'◻', badge:'nb-blank', label:'Düz'},
+  dotted:{icon:'⋯', badge:'nb-dotted', label:'Noktalı'},
+};
+
+function renderNotebooks(courseId){
+  const grid = document.getElementById('notebooksGrid');
+  if(!grid) return;
+  const list = (nbData[courseId] || []);
+  if(list.length === 0){
+    grid.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;grid-column:span 3;">Henüz defter yok. Yeni defter ekle!</p>';
+    return;
+  }
+  grid.innerHTML = list.map(nb => {
+    const tp = typeMap[nb.type] || typeMap.lined;
+    return `<div class="notebook-card ${tp.badge}" onclick="openNotebook('${nb.id}')">
+      <div class="notebook-icon">${tp.icon}</div>
+      <div class="notebook-name">${nb.name}</div>
+      <div class="notebook-badge">${tp.label}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderPDFs(courseId){
+  const grid = document.getElementById('pdfGrid');
+  if(!grid) return;
+  const pdfs = (nbData[courseId + '_pdfs'] || []);
+  if(pdfs.length === 0){
+    grid.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:12px;">PDF yok</p>';
+    return;
+  }
+  grid.innerHTML = pdfs.map(p => `
+    <div class="pdf-card" onclick="openPDFViewer('${p.id}')">
+      <div style="font-size:24px;margin-bottom:6px;">📄</div>
+      <div style="color:white;font-size:12px;font-weight:600;">${p.name}</div>
+      <div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:4px;">Görüntüle ▶</div>
+    </div>`).join('');
+}
+
+function openCourseModal(){
+  document.getElementById('courseNameInput').value = '';
+  document.getElementById('courseModal').classList.add('active');
+}
+function closeCourseModal(){ document.getElementById('courseModal').classList.remove('active'); }
+
+function saveCourse(){
+  const name = document.getElementById('courseNameInput').value.trim();
+  if(!name){ showToast('❌ Ders adı gir!'); return; }
+  const selectedColor = document.querySelector('#courseColorPicker .color-opt.selected');
+  const color = selectedColor ? selectedColor.getAttribute('data-color') : '#4ecdc4';
+  const id = 'course_' + Date.now();
+  courseData.push({id, name, color, progress:0});
+  saveAppData();
+  closeCourseModal();
+  renderCourseTabs();
+  renderHomeCourses();
+  showToast('✅ Ders eklendi!');
+}
+
+function openNotebookModal(){
+  document.getElementById('notebookNameInput').value = '';
+  document.getElementById('notebookModal').classList.add('active');
+}
+function closeNotebookModal(){ document.getElementById('notebookModal').classList.remove('active'); }
+
+function saveNotebook(){
+  const name = document.getElementById('notebookNameInput').value.trim();
+  if(!name){ showToast('❌ Defter adı gir!'); return; }
+  const type = document.getElementById('notebookTypeInput').value;
+  const id = 'nb_' + Date.now();
+  if(!nbData[activeCourse]) nbData[activeCourse] = [];
+  nbData[activeCourse].push({id, name, type, canvasPages:{}});
+  saveAppData();
+  closeNotebookModal();
+  renderNotebooks(activeCourse);
+  showToast('✅ Defter oluşturuldu!');
+}
+
+function uploadPDF(){
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.pdf';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      if(!nbData[activeCourse + '_pdfs']) nbData[activeCourse + '_pdfs'] = [];
+      nbData[activeCourse + '_pdfs'].push({
+        name: file.name,
+        id: 'pdf_' + Date.now(),
+        dataUrl: ev.target.result
+      });
+      saveAppData();
+      renderPDFs(activeCourse);
+      showToast('✅ PDF eklendi!');
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+// ==================== NOTEBOOK EDITOR ====================
+function openNotebook(nbId){
+  const list = nbData[activeCourse] || [];
+  const nb = list.find(n => n.id === nbId);
+  if(!nb) return;
+  currentNotebook = nb;
+  document.getElementById('editorTitle').textContent = nb.name;
+  const tp = typeMap[nb.type] || typeMap.lined;
+  document.getElementById('editorBadge').textContent = tp.label;
+  showPage('notebook');
+  setTimeout(() => {
+    initCanvas();
+    renderPageThumbs();
+    loadPage(1);
+  }, 100);
+}
+
+function initCanvas(){
+  const container = document.getElementById('canvasContainer');
+  canvas = document.getElementById('mainCanvas');
+  canvas.width = container.clientWidth;
+  canvas.height = window.innerHeight - 200;
+  ctx = canvas.getContext('2d');
+  drawBackground();
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('touchstart', e => { e.preventDefault(); startDraw(e.touches[0]); }, {passive:false});
+  canvas.addEventListener('touchmove', e => { e.preventDefault(); draw(e.touches[0]); }, {passive:false});
+  canvas.addEventListener('touchend', () => endDraw());
+}
+
+function drawBackground(){
+  if(!ctx || !canvas) return;
+  ctx.fillStyle = '#1a1d24';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if(!currentNotebook) return;
+  const type = currentNotebook.type;
+  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+  ctx.lineWidth = 1;
+  if(type === 'lined'){
+    for(let y = 40; y < canvas.height; y += 32){
+      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke();
+    }
+  } else if(type === 'grid'){
+    for(let y = 0; y < canvas.height; y += 24){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(canvas.width,y); ctx.stroke(); }
+    for(let x = 0; x < canvas.width; x += 24){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,canvas.height); ctx.stroke(); }
+  } else if(type === 'dotted'){
+    for(let y = 24; y < canvas.height; y += 24){
+      for(let x = 24; x < canvas.width; x += 24){
+        ctx.beginPath(); ctx.arc(x,y,1.5,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.15)'; ctx.fill();
+      }
+    }
+  }
+}
+
+let currentPage = 1;
+function getPos(e){ const r=canvas.getBoundingClientRect(); return {x:e.clientX-r.left, y:e.clientY-r.top}; }
+function startDraw(e){ isDrawing=true; const p=getPos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); }
+function draw(e){
+  if(!isDrawing) return;
+  const p=getPos(e);
+  ctx.lineWidth = isEraser ? penSize*4 : penSize;
+  ctx.strokeStyle = isEraser ? '#1a1d24' : penColor;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  ctx.lineTo(p.x,p.y); ctx.stroke();
+}
+function endDraw(){ if(!isDrawing) return; isDrawing=false; savePage(); }
+function savePage(){
+  if(!currentNotebook) return;
+  if(!currentNotebook.canvasPages) currentNotebook.canvasPages = {};
+  currentNotebook.canvasPages[currentPage] = canvas.toDataURL();
+  saveAppData();
+}
+function loadPage(pageNum){
+  currentPage = pageNum;
+  document.getElementById('pageIndicator').textContent = 'Sayfa ' + pageNum;
+  drawBackground();
+  if(currentNotebook && currentNotebook.canvasPages && currentNotebook.canvasPages[pageNum]){
+    const img = new Image();
+    img.onload = () => ctx.drawImage(img,0,0);
+    img.src = currentNotebook.canvasPages[pageNum];
+  }
+  renderPageThumbs();
+}
+function renderPageThumbs(){
+  const container = document.getElementById('pageThumbs');
+  if(!container) return;
+  const pages = currentNotebook && currentNotebook.canvasPages ? Object.keys(currentNotebook.canvasPages).length : 1;
+  const maxPage = Math.max(pages, currentPage);
+  let html = '';
+  for(let i=1; i<=maxPage+1; i++){
+    html += `<div class="page-thumb ${i===currentPage?'active':''}" onclick="loadPage(${i})">${i}</div>`;
+  }
+  container.innerHTML = html;
+}
+let isHighlighter = false;
+
+function setPenColor(color, el){
+  penColor = color; isEraser = false;
+  document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+  if(el) el.classList.add('active');
+  updateCanvasStyle();
+}
+
+function toggleHighlighter(){
+  isHighlighter = !isHighlighter;
+  isEraser = false;
+  document.getElementById('highlighterBtn').classList.toggle('active', isHighlighter);
+  document.getElementById('eraserBtn').classList.remove('active');
+  updateCanvasStyle();
+  showToast(isHighlighter ? '🖊️ Fosforlu kalem açık' : '✏️ Normal kalem');
+}
+
+function updateCanvasStyle(){
+  if(!ctx) return;
+  if(isHighlighter){
+    ctx.globalAlpha = 0.35;
+    ctx.globalCompositeOperation = 'multiply';
+  } else {
+    ctx.globalAlpha = 1.0;
+    ctx.globalCompositeOperation = 'source-over';
+  }
+}
+
+function toggleEraser(){
+  isEraser = !isEraser;
+  isHighlighter = false;
+  document.getElementById('eraserBtn').classList.toggle('active', isEraser);
+  document.getElementById('highlighterBtn').classList.remove('active');
+  ctx.globalAlpha = 1.0;
+  ctx.globalCompositeOperation = 'source-over';
+}
+function setPenSize(size, el){
+  penSize = size;
+  document.querySelectorAll('.size-btn').forEach(s => s.classList.remove('active'));
+  if(el) el.classList.add('active');
+}
+
+function clearCanvas(){ if(confirm('Sayfayı temizle?')){ drawBackground(); savePage(); } }
+function undoCanvas(){
+  if(!currentNotebook || !currentNotebook.canvasPages) return;
+  delete currentNotebook.canvasPages[currentPage];
+  saveAppData();
+  drawBackground();
+}
+function pasteImage(){ document.getElementById('imageUpload').click(); }
+function handleImageUpload(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(canvas.width/img.width, canvas.height/img.height, 1);
+      ctx.drawImage(img, (canvas.width-img.width*scale)/2, (canvas.height-img.height*scale)/2, img.width*scale, img.height*scale);
+      savePage();
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function exportNotebookPDF(){ showToast('📄 Export yakında!'); }
+
+// ==================== FLASHCARDS ====================
+function renderDecks(filter=''){
+  const grid = document.getElementById('decksGrid');
+  if(!grid) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  let filtered = deckData.filter(d => !filter || d.name.toLowerCase().includes(filter.toLowerCase()));
+  if(filtered.length === 0){
+    grid.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:14px;grid-column:span 2;">Henüz demet yok. Yeni demet oluştur!</p>';
+    return;
+  }
+  grid.innerHTML = filtered.map(d => {
+    const cards = d.cards || [];
+    const due = cards.filter(c => !c.nextReview || new Date(c.nextReview) <= today).length;
+    const mastered = cards.filter(c => (c.repetitions||0) >= 5).length;
+    return `<div class="deck-card" onclick="selectDeck('${d.id}')">
+      <div class="deck-name">${d.name} ${due > 0 ? '<span class="due-badge">'+due+' vadeli</span>' : ''}</div>
+      <div class="deck-course">${courseData.find(c=>c.id===d.courseId)?.name || ''}</div>
+      <div class="deck-stats">
+        <div class="deck-stat"><span>${cards.length}</span> Kart</div>
+        <div class="deck-stat"><span>${due}</span> Bugün</div>
+        <div class="deck-stat"><span>${mastered}</span> Öğrenildi</div>
+      </div>
+      <div class="deck-actions">
+        <button class="btn-cards" onclick="event.stopPropagation();openCardModal('${d.id}')">+ Kart</button>
+        <button class="btn-study" onclick="event.stopPropagation();startStudy('${d.id}')">▶ Çalış</button>
+        <button class="btn-cards" style="background:#a855f7;" onclick="event.stopPropagation();listCards('${d.id}')">📋</button>
+        <button class="btn-delete" onclick="event.stopPropagation();deleteDeck('${d.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function filterDecks(v){ renderDecks(v); }
+function selectDeck(id){ selectedDeckId = id; }
+
+function openDeckModal(){
+  document.getElementById('deckNameInput').value = '';
+  const sel = document.getElementById('deckCourseInput');
+  sel.innerHTML = courseData.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+  document.getElementById('deckModal').classList.add('active');
+}
+function closeDeckModal(){ document.getElementById('deckModal').classList.remove('active'); }
+function saveDeck(){
+  const name = document.getElementById('deckNameInput').value.trim();
+  if(!name){ showToast('❌ Demet adı gir!'); return; }
+  const courseId = document.getElementById('deckCourseInput').value;
+  deckData.push({id:'deck_'+Date.now(), name, courseId, cards:[]});
+  saveAppData(); closeDeckModal(); renderDecks();
+  showToast('✅ Demet oluşturuldu!');
+}
+function deleteDeck(id){
+  if(!confirm('Demeti sil?')) return;
+  deckData = deckData.filter(d => d.id !== id);
+  saveAppData(); renderDecks();
+  showToast('🗑️ Demet silindi');
+}
+
+function openCardModal(deckId){
+  selectedDeckId = deckId;
+  editingCardId = null;
+  document.getElementById('cardModalTitle').textContent = '➕ Yeni Kart';
+  document.getElementById('cardFrontInput').value = '';
+  document.getElementById('cardBackInput').value = '';
+  document.getElementById('cardModal').classList.add('active');
+}
+function closeCardModal(){ document.getElementById('cardModal').classList.remove('active'); }
+function saveCard(){
+  if(!selectedDeckId){ showToast('❌ Önce bir demet seç!'); return; }
+  const front = document.getElementById('cardFrontInput').value.trim();
+  const back = document.getElementById('cardBackInput').value.trim();
+  if(!front || !back){ showToast('❌ Ön ve arka yüzü doldur!'); return; }
+  const deck = deckData.find(d => d.id === selectedDeckId);
+  if(!deck) return;
+  if(!deck.cards) deck.cards = [];
+  if(editingCardId){
+    const card = deck.cards.find(c => c.id === editingCardId);
+    if(card){ card.front = front; card.back = back; }
+  } else {
+    deck.cards.push({id:'card_'+Date.now(), front, back, repetitions:0, easeFactor:2.5, interval:1, nextReview:null});
+  }
+  saveAppData(); closeCardModal(); renderDecks();
+  showToast('✅ Kart kaydedildi!');
+}
+
+// ==================== STUDY MODE ====================
+function startStudy(deckId){
+  const deck = deckData.find(d => d.id === deckId);
+  if(!deck || !deck.cards || deck.cards.length === 0){ showToast('❌ Bu demette kart yok!'); return; }
+  const today = new Date(); today.setHours(0,0,0,0);
+  studyQueue = deck.cards.filter(c => !c.nextReview || new Date(c.nextReview) <= today);
+  if(studyQueue.length === 0){ showToast('✅ Bugün çalışacak kart yok!'); return; }
+  studyIndex = 0; cardFlipped = false;
+  document.getElementById('studyDeckTitle').textContent = deck.name;
+  selectedDeckId = deckId;
+  showPage('study');
+  showStudyCard();
+}
+function showStudyCard(){
+  if(studyIndex >= studyQueue.length){
+    document.getElementById('flashcard3d').style.display = 'none';
+    document.getElementById('studyHint').style.display = 'none';
+    document.getElementById('studyButtons').style.display = 'none';
+    document.getElementById('studyComplete').style.display = 'block';
+    currentStreak++;
+    document.getElementById('streakDisplay').textContent = currentStreak;
+    saveAppData();
+    return;
+  }
+  const card = studyQueue[studyIndex];
+  document.getElementById('cardFront').textContent = card.front;
+  document.getElementById('cardBack').textContent = card.back;
+  document.getElementById('flashcardInner').classList.remove('flipped');
+  document.getElementById('studyHint').style.display = 'block';
+  document.getElementById('studyHint').textContent = 'Kartı görmek için tıkla 👆';
+  document.getElementById('studyButtons').style.display = 'none';
+  document.getElementById('flashcard3d').style.display = 'block';
+  document.getElementById('studyComplete').style.display = 'none';
+  document.getElementById('studyProgress').textContent = (studyIndex+1) + ' / ' + studyQueue.length;
+  cardFlipped = false;
+}
+function flipCard(){
+  if(cardFlipped) return;
+  cardFlipped = true;
+  document.getElementById('flashcardInner').classList.add('flipped');
+  document.getElementById('studyHint').textContent = 'Kendini değerlendir:';
+  document.getElementById('studyButtons').style.display = 'grid';
+}
+function rateCard(rating){
+  const card = studyQueue[studyIndex];
+  const deck = deckData.find(d => d.id === selectedDeckId);
+  if(deck){
+    const c = deck.cards.find(c => c.id === card.id);
+    if(c){ applySM2(c, rating); }
+  }
+  studyIndex++;
+  saveAppData();
+  showStudyCard();
+}
+function applySM2(card, rating){
+  const q = rating >= 3 ? rating + 1 : rating;
+  card.easeFactor = Math.max(1.3, card.easeFactor + 0.1 - (5-q)*(0.08+(5-q)*0.02));
+  if(q < 3){ card.interval = 1; card.repetitions = 0; }
+  else if(card.repetitions === 0){ card.interval = 1; card.repetitions = 1; }
+  else if(card.repetitions === 1){ card.interval = 6; card.repetitions = 2; }
+  else { card.interval = Math.round(card.interval * card.easeFactor); card.repetitions++; }
+  const next = new Date(); next.setDate(next.getDate() + card.interval);
+  card.nextReview = next.toISOString();
+}
+
+// ==================== TASKS ====================
+function toggleTaskForm(){
+  const f = document.getElementById('taskForm');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  if(f.style.display === 'block') document.getElementById('taskNameInput').focus();
+}
+function addTask(){
+  const name = document.getElementById('taskNameInput').value.trim();
+  if(!name){ showToast('❌ Görev adı gir!'); return; }
+  const due = document.getElementById('taskDueInput').value;
+  const priority = document.getElementById('taskPriorityInput').value;
+  taskData.push({id:'task_'+Date.now(), name, due, priority, done:false, createdAt:new Date().toISOString()});
+  saveAppData(); renderTasks();
+  document.getElementById('taskNameInput').value = '';
+  document.getElementById('taskForm').style.display = 'none';
+  showToast('✅ Görev eklendi!');
+}
+function toggleTask(taskId){
+  const task = taskData.find(t => t.id === taskId);
+  if(task){ task.done = !task.done; saveAppData(); renderTasks(); }
+}
+function deleteTask(taskId){
+  taskData = taskData.filter(t => t.id !== taskId);
+  saveAppData(); renderTasks();
+}
+function renderTasks(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const todayStr = today.toISOString().split('T')[0];
+  const todayList = document.getElementById('tasksTodayList');
+  const upcomingList = document.getElementById('tasksUpcomingList');
+  const doneList = document.getElementById('tasksDoneList');
+  if(!todayList) return;
+  const todayTasks = taskData.filter(t => !t.done && (!t.due || t.due === todayStr));
+  const upcomingTasks = taskData.filter(t => !t.done && t.due && t.due > todayStr);
+  const doneTasks = taskData.filter(t => t.done);
+  const renderList = (tasks, container) => {
+    if(!container) return;
+    if(tasks.length === 0){ container.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-size:13px;padding:8px 0;">Görev yok</p>'; return; }
+    container.innerHTML = tasks.map(t => `
+      <div class="task-item">
+        <div class="task-check ${t.done?'done':''}" onclick="toggleTask('${t.id}')">
+          ${t.done ? '✓' : ''}
+        </div>
+        <div style="flex:1;">
+          <div class="task-name ${t.done?'done':''}">${t.name}</div>
+          <div class="task-meta">${t.due ? '📅 ' + t.due : ''} ${t.priority === 'high' ? '🔴' : t.priority === 'low' ? '🟢' : ''}</div>
+        </div>
+        <button onclick="deleteTask('${t.id}')" style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:16px;">✕</button>
+      </div>`).join('');
+  };
+  renderList(todayTasks, todayList);
+  renderList(upcomingTasks, upcomingList);
+  renderList(doneTasks, doneList);
+}
+
+// ==================== PLANNER ====================
+function dateKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+
+function switchPlannerTab(tab, el){
+  document.querySelectorAll('.planner-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.planner-view').forEach(v => v.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(tab === 'daily'){ document.getElementById('planViewDaily').classList.add('active'); renderDailyPlan(); }
+  if(tab === 'weekly'){ document.getElementById('planViewWeekly').classList.add('active'); renderWeeklyPlan(); }
+  if(tab === 'calendar'){ document.getElementById('planViewCalendar').classList.add('active'); renderCalendar(); }
+  if(tab === 'exams'){ document.getElementById('planViewExams').classList.add('active'); renderExamList(); }
+}
+
+function renderDailyPlan(){
+  const label = document.getElementById('dailyDateLabel');
+  if(!label) return;
+  const opts = {weekday:'long', day:'numeric', month:'long'};
+  try{ label.textContent = currentDailyDate.toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : currentLang === 'de' ? 'de-DE' : 'en-US', opts); }
+  catch(e){ label.textContent = dateKey(currentDailyDate); }
+  const key = dateKey(currentDailyDate);
+  const events = plannerEvents[key] || [];
+  const list = document.getElementById('dailyEventsList');
+  if(!list) return;
+  if(events.length === 0){
+    list.innerHTML = '<p style="color:rgba(255,255,255,0.3);font-size:13px;">Bugün için etkinlik yok</p>';
+    return;
+  }
+  list.innerHTML = events.sort((a,b)=>a.time.localeCompare(b.time)).map((e,i) => `
+    <div style="background:#161b22;border-radius:12px;padding:14px 16px;margin-bottom:8px;border-left:3px solid #a855f7;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="color:rgba(255,255,255,0.5);font-size:12px;">⏰ ${e.time}</div>
+        <div style="color:white;font-weight:600;font-size:14px;margin-top:2px;">${e.title}</div>
+      </div>
+      <button onclick="deleteEvent('${key}',${i})" style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;font-size:16px;">✕</button>
+    </div>`).join('');
+}
+function dailyPrev(){ currentDailyDate.setDate(currentDailyDate.getDate()-1); renderDailyPlan(); }
+function dailyNext(){ currentDailyDate.setDate(currentDailyDate.getDate()+1); renderDailyPlan(); }
+
+function openEventModal(){ document.getElementById('eventModal').classList.add('active'); }
+function closeEventModal(){ document.getElementById('eventModal').classList.remove('active'); }
+function saveEvent(){
+  const title = document.getElementById('eventTitleInput').value.trim();
+  if(!title){ showToast('❌ Başlık gir!'); return; }
+  const time = document.getElementById('eventTimeInput').value;
+  const key = dateKey(currentDailyDate);
+  if(!plannerEvents[key]) plannerEvents[key] = [];
+  plannerEvents[key].push({title, time});
+  saveAppData(); closeEventModal(); renderDailyPlan(); renderTodayWidget();
+  showToast('✅ Etkinlik eklendi!');
+}
+function deleteEvent(key, idx){
+  if(plannerEvents[key]) plannerEvents[key].splice(idx,1);
+  saveAppData(); renderDailyPlan(); renderTodayWidget();
+}
+
+// Calendar
+const calMonths = {
+  tr:['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'],
+  en:['January','February','March','April','May','June','July','August','September','October','November','December'],
+  de:['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember']
+};
+const calWDs = {
+  tr:['Pz','Pt','Sa','Ça','Pe','Cu','Ct'],
+  en:['Su','Mo','Tu','We','Th','Fr','Sa'],
+  de:['So','Mo','Di','Mi','Do','Fr','Sa']
+};
+function renderCalendar(){
+  const label = document.getElementById('calMonthLabel');
+  if(!label) return;
+  label.textContent = (calMonths[currentLang]||calMonths.en)[calMonth] + ' ' + calYear;
+  const wd = document.getElementById('calWeekdays');
+  if(wd) wd.innerHTML = (calWDs[currentLang]||calWDs.en).map(d=>`<div class="cal-weekday">${d}</div>`).join('');
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const today = new Date();
+  let html = '';
+  for(let i=0;i<firstDay;i++) html += '<div class="cal-day empty"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const key = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    const isToday = today.getDate()===d && today.getMonth()===calMonth && today.getFullYear()===calYear;
+    const hasNote = calNotes[key] && calNotes[key].length > 0;
+    const isSel = selectedCalDay === key;
+    html += `<div class="cal-day ${isToday?'today':''} ${hasNote?'has-note':''} ${isSel?'selected':''}" onclick="selectCalDay(${d})">${d}</div>`;
+  }
+  const cd = document.getElementById('calDays');
+  if(cd) cd.innerHTML = html;
+  if(selectedCalDay) renderCalNotes(selectedCalDay);
+}
+function calPrev(){ calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); }
+function calNext(){ calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); }
+function selectCalDay(d){
+  selectedCalDay = calYear+'-'+String(calMonth+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+  renderCalendar();
+  document.getElementById('calNotesPanel').style.display = 'block';
+  renderCalNotes(selectedCalDay);
+}
+function renderCalNotes(key){
+  const nd = document.getElementById('calNotesDate');
+  const nl = document.getElementById('calNotesList');
+  if(!nd || !nl) return;
+  nd.textContent = '📅 ' + key;
+  const notes = calNotes[key] || [];
+  nl.innerHTML = notes.length === 0
+    ? '<p style="color:rgba(255,255,255,0.4);font-size:12px;">Not yok</p>'
+    : notes.map((n,i) => `<div class="cal-note-item"><span style="color:white;font-size:13px;">📌 ${n}</span><button class="cal-note-delete" onclick="deleteCalNote('${key}',${i})">✕</button></div>`).join('');
+}
+function addCalNote(){
+  const input = document.getElementById('calNoteInput');
+  const val = input.value.trim();
+  if(!val || !selectedCalDay) return;
+  if(!calNotes[selectedCalDay]) calNotes[selectedCalDay] = [];
+  calNotes[selectedCalDay].push(val);
+  input.value = '';
+  saveAppData(); renderCalendar();
+  showToast('✅ Not eklendi!');
+}
+function deleteCalNote(key, idx){
+  if(calNotes[key]) calNotes[key].splice(idx,1);
+  saveAppData(); renderCalNotes(key); renderCalendar();
+}
+
+// Exams
+function openExamModal(){
+  document.getElementById('examTitleInput').value = '';
+  document.getElementById('examDateInput').value = '';
+  document.getElementById('examModal').classList.add('active');
+}
+function closeExamModal(){ document.getElementById('examModal').classList.remove('active'); }
+function saveExam(){
+  const title = document.getElementById('examTitleInput').value.trim();
+  const date = document.getElementById('examDateInput').value;
+  if(!title || !date){ showToast('❌ Başlık ve tarih gir!'); return; }
+  const type = document.getElementById('examTypeInput').value;
+  examData.push({id:'exam_'+Date.now(), title, date, type});
+  saveAppData(); closeExamModal(); renderExamList(); renderUpcomingExamsWidget();
+  showToast('✅ Sınav eklendi!');
+}
+function renderExamList(){
+  const list = document.getElementById('examList');
+  if(!list) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const sorted = [...examData].sort((a,b) => new Date(a.date)-new Date(b.date));
+  if(sorted.length === 0){ list.innerHTML = '<p style="color:rgba(255,255,255,0.4);font-size:13px;">Sınav yok</p>'; return; }
+  list.innerHTML = sorted.map((e,i) => {
+    const d = new Date(e.date); const diff = Math.ceil((d-today)/86400000);
+    const color = diff <= 0 ? '#ef4444' : diff <= 3 ? '#f59e0b' : '#10b981';
+    const icon = e.type === 'exam' ? '📝' : e.type === 'homework' ? '📚' : '🎯';
+    return `<div class="exam-item">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <div class="exam-title">${icon} ${e.title}</div>
+          <div class="exam-date">📅 ${e.date} · <span style="color:${color};font-weight:700;">${diff <= 0 ? 'Geçti' : diff === 1 ? 'Yarın' : diff + ' gün'}</span></div>
+        </div>
+        <button onclick="deleteExam(${i})" style="background:none;border:none;color:rgba(255,255,255,0.3);cursor:pointer;">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function deleteExam(idx){
+  examData.splice(idx,1);
+  saveAppData(); renderExamList(); renderUpcomingExamsWidget();
+}
+
+function requestNotificationPermission(){
+  if('Notification' in window) Notification.requestPermission().then(p => {
+    showToast(p === 'granted' ? '✅ Bildirimler açık!' : '❌ Bildirimler reddedildi');
+    document.getElementById('notifBanner').style.display = 'none';
+  });
+}
+
+// ==================== STATISTICS ====================
+function renderStats(){
+  const today = new Date(); today.setHours(0,0,0,0);
+  let total=0, due=0, mastered=0;
+  deckData.forEach(d => (d.cards||[]).forEach(c => {
+    total++;
+    if((c.repetitions||0) >= 5) mastered++;
+    if(!c.nextReview || new Date(c.nextReview) <= today) due++;
+  }));
+  const sc = document.getElementById('streakCount'); if(sc) sc.textContent = currentStreak;
+  const stc = document.getElementById('statTotalCards'); if(stc) stc.textContent = total;
+  const sdc = document.getElementById('statDueCards'); if(sdc) sdc.textContent = due;
+  const smc = document.getElementById('statMastered'); if(smc) smc.textContent = mastered;
+  const cg = document.getElementById('statsCoursesGrid');
+  if(cg) cg.innerHTML = courseData.map(c => `
+    <div style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+        <span style="color:white;font-size:13px;">${c.name}</span>
+        <span style="color:${c.color};font-weight:700;">${c.progress}%</span>
+      </div>
+      <div style="background:rgba(255,255,255,0.1);border-radius:99px;height:8px;">
+        <div style="background:${c.color};width:${c.progress}%;height:100%;border-radius:99px;"></div>
+      </div>
+    </div>`).join('');
+  const done = taskData.filter(t=>t.done).length;
+  const pending = taskData.filter(t=>!t.done).length;
+  const stt = document.getElementById('statTotalTasks'); if(stt) stt.textContent = taskData.length;
+  const sdt = document.getElementById('statDoneTasks'); if(sdt) sdt.textContent = done;
+  const spt = document.getElementById('statPendingTasks'); if(spt) spt.textContent = pending;
+}
+
+// ==================== POMODORO ====================
+function setPomoMode(minutes, label, btn){
+  resetPomodoro();
+  pomoMode = minutes;
+  pomoTimeLeft = minutes * 60;
+  document.getElementById('timerLabel').textContent = label;
+  document.querySelectorAll('.pomo-mode-btn').forEach(b => b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  updateTimerDisplay();
+}
+function togglePomodoro(){
+  if(pomoRunning){ clearInterval(pomodoroInterval); pomoRunning=false; document.getElementById('pomoBtnStart').textContent='▶ Devam'; }
+  else { pomoRunning=true; document.getElementById('pomoBtnStart').textContent='⏸ Duraklat';
+    pomodoroInterval = setInterval(()=>{
+      pomoTimeLeft--;
+      if(pomoTimeLeft <= 0){
+        clearInterval(pomodoroInterval); pomoRunning=false;
+        pomoCount++; document.getElementById('pomoCount').textContent=pomoCount;
+        document.getElementById('pomoBtnStart').textContent='▶ Başlat';
+        pomoTimeLeft = pomoMode*60; saveAppData();
+        showToast('🍅 Pomodoro tamamlandı!');
+      }
+      updateTimerDisplay();
+    },1000);
+  }
+}
+function resetPomodoro(){
+  clearInterval(pomodoroInterval); pomoRunning=false;
+  pomoTimeLeft = pomoMode*60;
+  document.getElementById('pomoBtnStart').textContent='▶ Başlat';
+  updateTimerDisplay();
+}
+function updateTimerDisplay(){
+  const m=Math.floor(pomoTimeLeft/60); const s=pomoTimeLeft%60;
+  const td = document.getElementById('timerDisplay');
+  if(td) td.textContent = String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+// ==================== SEARCH ====================
+function openSearch(){ document.getElementById('searchModal').classList.add('active'); setTimeout(()=>document.getElementById('searchInput').focus(),100); }
+function closeSearch(){ document.getElementById('searchModal').classList.remove('active'); }
+function doSearch(q){
+  const results = document.getElementById('searchResults');
+  if(!q.trim()){ results.innerHTML=''; return; }
+  const ql = q.toLowerCase();
+  let items = [];
+  courseData.forEach(c => { if(c.name.toLowerCase().includes(ql)) items.push({icon:'📚',title:c.name,action:`openCourse('${c.id}')`}); });
+  deckData.forEach(d => { if(d.name.toLowerCase().includes(ql)) items.push({icon:'🃏',title:d.name,action:`startStudy('${d.id}')`}); });
+  taskData.forEach(t => { if(t.name.toLowerCase().includes(ql)) items.push({icon:'✅',title:t.name,action:"showPage('tasks')"}); });
+  examData.forEach(e => { if(e.title.toLowerCase().includes(ql)) items.push({icon:'📝',title:e.title,action:"showPage('planner')"}); });
+  if(items.length === 0){ results.innerHTML='<p style="color:rgba(255,255,255,0.4);padding:12px;">Sonuç bulunamadı</p>'; return; }
+  results.innerHTML = items.map(item => `<div class="search-result-item" onclick="closeSearch();${item.action}">${item.icon} ${item.title}</div>`).join('');
+}
+document.addEventListener('keydown', e => { if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();openSearch();} if(e.key==='Escape'){closeSearch();} });
+
+// ==================== NAME MODAL ====================
+function openNameModal(){ document.getElementById('nameModal').classList.add('active'); }
+function saveName(){
+  const name = document.getElementById('nameInput').value.trim();
+  if(!name){ showToast('❌ İsim gir!'); return; }
+  userName = name;
+  saveAppData();
+  document.getElementById('nameModal').classList.remove('active');
+  updateWelcomeName();
+  showToast('👋 Merhaba, ' + name + '!');
+}
+
+// ==================== DARK MODE ====================
+function toggleDark(){
+  isDark = !isDark;
+  localStorage.setItem('notblick_dark', isDark ? '1' : '0');
+  applyTheme();
+}
+
+function applyTheme(){
+  const root = document.documentElement;
+  const btn = document.querySelector('[onclick="toggleDark()"]');
+  if(isDark){
+    root.style.setProperty('--bg', '#0d1117');
+    root.style.setProperty('--bg2', '#161b22');
+    root.style.setProperty('--text', '#e6edf3');
+    root.style.setProperty('--text2', 'rgba(255,255,255,0.5)');
+    root.style.setProperty('--border', 'rgba(255,255,255,0.08)');
+    document.body.style.background = '#0d1117';
+    document.body.style.color = '#e6edf3';
+    if(btn) btn.textContent = '🌙';
+    // Dark: tüm kartlar koyu
+    document.querySelectorAll('.widget-card,.deck-card,.task-item,.exam-item,.week-day-col,.stat-card,.modal,.pdf-card,.notebook-card').forEach(el => {
+      el.style.background = '#161b22';
+      el.style.color = '#e6edf3';
+    });
+  } else {
+    root.style.setProperty('--bg', '#f0f4f8');
+    root.style.setProperty('--bg2', '#ffffff');
+    root.style.setProperty('--text', '#1a1a2e');
+    root.style.setProperty('--text2', 'rgba(0,0,0,0.5)');
+    root.style.setProperty('--border', 'rgba(0,0,0,0.08)');
+    document.body.style.background = '#f0f4f8';
+    document.body.style.color = '#1a1a2e';
+    if(btn) btn.textContent = '☀️';
+    document.querySelectorAll('.widget-card,.deck-card,.task-item,.exam-item,.week-day-col,.stat-card,.modal,.pdf-card,.notebook-card').forEach(el => {
+      el.style.background = '#ffffff';
+      el.style.color = '#1a1a2e';
+    });
+    // Nav bars
+    document.querySelectorAll('.nav-top-bar').forEach(el => el.style.background = '#ffffff');
+    document.querySelectorAll('.nav-tabs').forEach(el => el.style.background = '#f8f9fa');
+    document.querySelectorAll('.page').forEach(el => el.style.background = '#f0f4f8');
+  }
+}
+
+// ==================== TOAST ====================
+function showToast(msg, duration=3000){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), duration);
+}
+
+// ==================== COLOR PICKER ====================
+document.addEventListener('click', e => {
+  if(e.target.classList.contains('color-opt')){
+    e.target.closest('.color-picker-row').querySelectorAll('.color-opt').forEach(o => o.classList.remove('selected'));
+    e.target.classList.add('selected');
+  }
+});
+
+// ==================== HAFTALIK PLAN ====================
+let currentWeekStart = getWeekStart(new Date());
+
+function getWeekStart(date){
+  const d = new Date(date);
+  const day = d.getDay();
+  d.setDate(d.getDate() - day);
+  d.setHours(0,0,0,0);
+  return d;
+}
+
+function renderWeeklyPlan(){
+  const weekDays = {tr:['Paz','Pzt','Sal','Çar','Per','Cum','Cmt'], en:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], de:['So','Mo','Di','Mi','Do','Fr','Sa']};
+  const wd = weekDays[currentLang] || weekDays.en;
+  
+  // Week label
+  const endDate = new Date(currentWeekStart);
+  endDate.setDate(endDate.getDate() + 6);
+  const label = document.getElementById('weekLabel');
+  if(label){
+    const fmt = d => d.getDate() + '.' + String(d.getMonth()+1).padStart(2,'0');
+    label.textContent = fmt(currentWeekStart) + ' – ' + fmt(endDate) + ' ' + endDate.getFullYear();
+  }
+
+  const grid = document.getElementById('weeklyGrid');
+  if(!grid) return;
+  
+  const today = new Date(); today.setHours(0,0,0,0);
+  let html = '';
+  for(let i=0; i<7; i++){
+    const day = new Date(currentWeekStart);
+    day.setDate(day.getDate() + i);
+    const key = dateKey(day);
+    const events = plannerEvents[key] || [];
+    const isToday = day.getTime() === today.getTime();
+    const exams = examData.filter(e => e.date === key);
+    
+    html += `<div class="week-day-col" style="${isToday ? 'border:2px solid #14b8a6;' : ''}">
+      <div class="week-day-label" style="${isToday ? 'color:#14b8a6;' : ''}">${wd[i]}<br><span style="font-size:13px;font-weight:800;">${day.getDate()}</span></div>
+      ${exams.map(e => `<div class="week-event" style="background:rgba(239,68,68,0.4);">📝 ${e.title}</div>`).join('')}
+      ${events.slice(0,4).map(e => `<div class="week-event" onclick="currentDailyDate=new Date('${key}');switchPlannerTab('daily',null);renderDailyPlan();">⏰ ${e.time}<br>${e.title}</div>`).join('')}
+      ${events.length === 0 && exams.length === 0 ? '<div style="color:rgba(255,255,255,0.2);font-size:10px;text-align:center;margin-top:8px;">—</div>' : ''}
+    </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function weekPrev(){
+  currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+  renderWeeklyPlan();
+}
+function weekNext(){
+  currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+  renderWeeklyPlan();
+}
+
+// ==================== QR YEDEKLEME ====================
+function openBackupModal(){
+  const modal = document.getElementById('backupModal');
+  modal.classList.add('active');
+  document.getElementById('qrContainer').style.display = 'none';
+  
+  // Show stats
+  const stats = document.getElementById('backupStats');
+  if(stats){
+    stats.innerHTML = `
+      📚 ${courseData.length} ders &nbsp;|&nbsp;
+      📓 ${Object.values(nbData).flat().length} defter &nbsp;|&nbsp;
+      🃏 ${deckData.length} demet (${deckData.reduce((s,d)=>s+(d.cards||[]).length,0)} kart) &nbsp;|&nbsp;
+      ✅ ${taskData.length} görev &nbsp;|&nbsp;
+      📝 ${examData.length} sınav
+    `;
+  }
+}
+function closeBackupModal(){ document.getElementById('backupModal').classList.remove('active'); }
+
+function getBackupData(){
+  return {
+    v: 3,
+    exportDate: new Date().toISOString(),
+    courseData, nbData, deckData, taskData,
+    examData, plannerEvents, calNotes,
+    userName, currentStreak
+  };
+}
+
+function downloadBackup(){
+  const data = getBackupData();
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'notblick-backup-' + new Date().toISOString().split('T')[0] + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('💾 Yedek indirildi!');
+}
+
+function generateBackupQR(){
+  const data = getBackupData();
+  const json = JSON.stringify(data);
+  // Simple QR using Unicode blocks (no CDN needed)
+  // Instead show the data as a copyable link
+  const encoded = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (m,p1) => String.fromCharCode('0x'+p1)));
+  const url = window.location.origin + window.location.pathname + '#backup/' + encoded.substring(0, 100);
+  
+  const qrDiv = document.getElementById('qrCode');
+  if(qrDiv){
+    qrDiv.innerHTML = `
+      <div style="background:#0d1117;border-radius:8px;padding:12px;text-align:left;">
+        <div style="color:#14b8a6;font-size:12px;font-weight:700;margin-bottom:8px;">📋 Kopyala ve kaydet:</div>
+        <textarea readonly style="width:240px;height:80px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:white;font-size:10px;padding:6px;resize:none;" onclick="this.select();">${encoded.substring(0,200)}...</textarea>
+        <div style="color:rgba(255,255,255,0.4);font-size:10px;margin-top:6px;">Tam yedeği JSON olarak indir ↓</div>
+      </div>`;
+  }
+  document.getElementById('qrContainer').style.display = 'block';
+  downloadBackup();
+}
+
+function importFromFile(){
+  document.getElementById('importFileInput').click();
+}
+
+function handleImportFile(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(!data.v){ showToast('❌ Geçersiz yedek dosyası!'); return; }
+      if(!confirm('Mevcut veriler silinecek ve yedek yüklenecek. Devam?')) return;
+      if(data.courseData) courseData = data.courseData;
+      if(data.nbData) nbData = data.nbData;
+      if(data.deckData) deckData = data.deckData;
+      if(data.taskData) taskData = data.taskData;
+      if(data.examData) examData = data.examData;
+      if(data.plannerEvents) plannerEvents = data.plannerEvents;
+      if(data.calNotes) calNotes = data.calNotes;
+      if(data.userName) userName = data.userName;
+      if(data.currentStreak) currentStreak = data.currentStreak;
+      saveAppData();
+      closeBackupModal();
+      showPage('home');
+      updateWelcomeName();
+      showToast('✅ Yedek başarıyla yüklendi!', 4000);
+    }catch(err){
+      showToast('❌ Dosya okunamadı: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ==================== PDF GÖRÜNTÜLEME (basit) ====================
+function viewPDF(pdfData, name){
+  // Open PDF in new tab if data URL available
+  if(pdfData){
+    const w = window.open();
+    w.document.write('<iframe src="' + pdfData + '" style="width:100%;height:100vh;border:none;"></iframe>');
+  } else {
+    showToast('📄 PDF görüntüleme yakında!');
+  }
+}
+
+// ==================== KART YÖNETİMİ ====================
+function listCards(deckId){
+  selectedDeckId = deckId;
+  const deck = deckData.find(d => d.id === deckId);
+  if(!deck) return;
+  document.getElementById('cardListTitle').textContent = '📋 ' + deck.name + ' — Kartlar (' + (deck.cards||[]).length + ')';
+  renderCardList(deck);
+  document.getElementById('cardListModal').classList.add('active');
+}
+
+function renderCardList(deck){
+  const container = document.getElementById('cardListContent');
+  if(!deck.cards || deck.cards.length === 0){
+    container.innerHTML = '<p style="color:rgba(255,255,255,0.4);text-align:center;padding:20px;">Henüz kart yok.</p>';
+    return;
+  }
+  container.innerHTML = deck.cards.map((c,i) => `
+    <div style="background:rgba(255,255,255,0.05);border-radius:12px;padding:14px;margin-bottom:8px;border:1px solid rgba(255,255,255,0.08);">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+        <div style="flex:1;">
+          <div style="color:white;font-size:13px;font-weight:700;margin-bottom:4px;">❓ ${c.front}</div>
+          <div style="color:rgba(255,255,255,0.6);font-size:13px;">💡 ${c.back}</div>
+          <div style="margin-top:6px;display:flex;gap:6px;">
+            <span style="background:rgba(16,185,129,0.2);color:#10b981;border-radius:6px;padding:2px 8px;font-size:11px;">Tekrar: ${c.repetitions||0}</span>
+            <span style="background:rgba(99,102,241,0.2);color:#818cf8;border-radius:6px;padding:2px 8px;font-size:11px;">Aralık: ${c.interval||1}g</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0;">
+          <button onclick="editCard('${deck.id}','${c.id}')" style="background:#6366f1;border:none;border-radius:8px;padding:6px 10px;color:white;cursor:pointer;font-size:12px;">✏️</button>
+          <button onclick="deleteCard('${deck.id}','${c.id}')" style="background:#ef4444;border:none;border-radius:8px;padding:6px 10px;color:white;cursor:pointer;font-size:12px;">🗑️</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function editCard(deckId, cardId){
+  selectedDeckId = deckId;
+  editingCardId = cardId;
+  const deck = deckData.find(d => d.id === deckId);
+  if(!deck) return;
+  const card = deck.cards.find(c => c.id === cardId);
+  if(!card) return;
+  document.getElementById('cardListModal').classList.remove('active');
+  document.getElementById('cardModalTitle').textContent = '✏️ Kartı Düzenle';
+  document.getElementById('cardFrontInput').value = card.front;
+  document.getElementById('cardBackInput').value = card.back;
+  document.getElementById('cardModal').classList.add('active');
+}
+
+function deleteCard(deckId, cardId){
+  if(!confirm('Bu kartı sil?')) return;
+  const deck = deckData.find(d => d.id === deckId);
+  if(!deck) return;
+  deck.cards = deck.cards.filter(c => c.id !== cardId);
+  saveAppData();
+  renderCardList(deck);
+  renderDecks();
+  showToast('🗑️ Kart silindi');
+  document.getElementById('cardListTitle').textContent = '📋 ' + deck.name + ' — Kartlar (' + deck.cards.length + ')';
+}
+
+// ==================== OTOMATİK DERS İLERLEMESİ ====================
+function calcCourseProgress(courseId){
+  // Flashcard masterlik bazlı otomatik hesapla
+  const decks = deckData.filter(d => d.courseId === courseId);
+  if(decks.length === 0) return null; // Manuel kalsın
+  const total = decks.reduce((s,d) => s + (d.cards||[]).length, 0);
+  if(total === 0) return 0;
+  const mastered = decks.reduce((s,d) => s + (d.cards||[]).filter(c => (c.repetitions||0) >= 3).length, 0);
+  return Math.round((mastered / total) * 100);
+}
+
+function updateCourseProgresses(){
+  let updated = false;
+  courseData.forEach(c => {
+    const auto = calcCourseProgress(c.id);
+    if(auto !== null && auto !== c.progress){
+      c.progress = auto;
+      updated = true;
+    }
+  });
+  if(updated){ saveAppData(); }
+}
+
+// ==================== İSTATİSTİKLER GRAFİK ====================
+function renderStats(){
+  updateCourseProgresses();
+  const today = new Date(); today.setHours(0,0,0,0);
+  let total=0, due=0, mastered=0;
+  deckData.forEach(d => (d.cards||[]).forEach(c => {
+    total++;
+    if((c.repetitions||0) >= 5) mastered++;
+    if(!c.nextReview || new Date(c.nextReview) <= today) due++;
+  }));
+  const sc = document.getElementById('streakCount'); if(sc) sc.textContent = currentStreak;
+  const stc = document.getElementById('statTotalCards'); if(stc) stc.textContent = total;
+  const sdc = document.getElementById('statDueCards'); if(sdc) sdc.textContent = due;
+  const smc = document.getElementById('statMastered'); if(smc) smc.textContent = mastered;
+
+  // Grafikli ders ilerlemesi
+  const cg = document.getElementById('statsCoursesGrid');
+  if(cg) cg.innerHTML = courseData.map(c => {
+    const segs = Math.round(c.progress / 5); // 20 segment
+    const bar = Array.from({length:20}, (_,i) => `<div style="flex:1;height:100%;background:${i<segs ? c.color : 'rgba(255,255,255,0.08)'};border-radius:2px;"></div>`).join('');
+    return `<div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <span style="color:white;font-size:13px;font-weight:700;">${c.name}</span>
+        <span style="color:${c.color};font-weight:800;font-size:15px;">${c.progress}%</span>
+      </div>
+      <div style="display:flex;gap:2px;height:12px;border-radius:6px;overflow:hidden;">${bar}</div>
+      <div style="display:flex;justify-content:space-between;margin-top:4px;">
+        <span style="color:rgba(255,255,255,0.3);font-size:10px;">0%</span>
+        <span style="color:rgba(255,255,255,0.3);font-size:10px;">100%</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Haftalık aktivite ısı haritası
+  const actGrid = document.getElementById('activityGrid');
+  if(actGrid){
+    const days = [];
+    for(let i=34; i>=0; i--){
+      const d = new Date(); d.setDate(d.getDate()-i);
+      const key = dateKey(d);
+      const hasActivity = (plannerEvents[key]||[]).length > 0 || 
+                          taskData.filter(t => t.createdAt && t.createdAt.startsWith(key)).length > 0;
+      days.push(`<div title="${key}" style="width:14px;height:14px;border-radius:3px;background:${hasActivity ? '#14b8a6' : 'rgba(255,255,255,0.06)'};"></div>`);
+    }
+    actGrid.innerHTML = days.join('');
+  }
+
+  const done = taskData.filter(t=>t.done).length;
+  const pending = taskData.filter(t=>!t.done).length;
+  const stt = document.getElementById('statTotalTasks'); if(stt) stt.textContent = taskData.length;
+  const sdt = document.getElementById('statDoneTasks'); if(sdt) sdt.textContent = done;
+  const spt = document.getElementById('statPendingTasks'); if(spt) spt.textContent = pending;
+
+  // Görev tamamlanma oranı
+  const rate = taskData.length > 0 ? Math.round((done/taskData.length)*100) : 0;
+  const rateEl = document.getElementById('taskCompletionRate');
+  if(rateEl) rateEl.innerHTML = `<div style="display:flex;gap:2px;height:10px;border-radius:6px;overflow:hidden;margin-top:8px;">${
+    Array.from({length:20},(_,i)=>`<div style="flex:1;background:${i<Math.round(rate/5)?'#10b981':'rgba(255,255,255,0.08)'}; border-radius:2px;"></div>`).join('')
+  }</div><div style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:4px;text-align:center;">Tamamlanma oranı: ${rate}%</div>`;
+}
+
+// ==================== NOTEBOOK EXPORT PDF (Gerçek) ====================
+function exportNotebookPDF(){
+  if(!currentNotebook){ showToast('❌ Açık defter yok!'); return; }
+  const pages = currentNotebook.canvasPages || {};
+  const pageKeys = Object.keys(pages).sort((a,b)=>Number(a)-Number(b));
+  if(pageKeys.length === 0){ showToast('❌ Kaydedilmiş sayfa yok!'); return; }
+  
+  // Her sayfayı PNG olarak indir (PDF.js olmadan en sağlam yol)
+  if(pageKeys.length === 1){
+    const a = document.createElement('a');
+    a.href = pages[pageKeys[0]];
+    a.download = currentNotebook.name + '-sayfa1.png';
+    a.click();
+    showToast('✅ Sayfa indirildi (PNG)');
+  } else {
+    // Çoklu sayfa: zip benzeri ardışık indirme
+    pageKeys.forEach((k, i) => {
+      setTimeout(() => {
+        const a = document.createElement('a');
+        a.href = pages[k];
+        a.download = currentNotebook.name + '-sayfa' + k + '.png';
+        a.click();
+      }, i * 500);
+    });
+    showToast('✅ ' + pageKeys.length + ' sayfa indiriliyor...');
+  }
+}
+
+// ==================== PDF VIEWER ====================
+let pdfDoc = null;
+let pdfCurrentPage = 1;
+let pdfTotalPages = 1;
+let currentPdfId = null;
+
+function openPDFViewer(pdfId){
+  const pdfs = nbData[activeCourse + '_pdfs'] || [];
+  const pdf = pdfs.find(p => p.id === pdfId);
+  if(!pdf){ showToast('❌ PDF bulunamadı!'); return; }
+  currentPdfId = pdfId;
+  document.getElementById('pdfViewerTitle').textContent = pdf.name;
+  showPage('pdfViewer');
+  if(!pdf.dataUrl){ showToast('❌ PDF verisi yok!'); return; }
+  if(!window.pdfJSReady){
+    // PDF.js yüklenmemişse iframe ile göster
+    const c = document.getElementById('pdfCanvasContainer');
+    c.innerHTML = '<iframe src="' + pdf.dataUrl + '" style="width:100%;height:calc(100vh - 100px);border:none;border-radius:8px;"></iframe>';
+    return;
+  }
+  loadPDFPage(pdf.dataUrl, 1);
+}
+
+function loadPDFPage(src, pageNum){
+  const loading = document.getElementById('pdfLoading');
+  const canvas = document.getElementById('pdfCanvas');
+  if(loading) loading.style.display = 'block';
+  if(canvas) canvas.style.display = 'none';
+  try{
+    pdfjsLib.getDocument(src).promise.then(doc => {
+      pdfDoc = doc;
+      pdfTotalPages = doc.numPages;
+      pdfCurrentPage = pageNum;
+      renderPDFPage(pageNum);
+    }).catch(e => {
+      if(loading) loading.style.display = 'none';
+      showToast('❌ PDF açılamadı');
+    });
+  }catch(e){
+    if(loading) loading.style.display = 'none';
+    showToast('❌ PDF.js hazır değil');
+  }
+}
+
+function renderPDFPage(pageNum){
+  if(!pdfDoc) return;
+  pdfDoc.getPage(pageNum).then(page => {
+    const canvas = document.getElementById('pdfCanvas');
+    const container = document.getElementById('pdfCanvasContainer');
+    const loading = document.getElementById('pdfLoading');
+    if(!canvas) return;
+    const vp = page.getViewport({scale: 1});
+    const scale = Math.min((container.clientWidth - 32) / vp.width, 2);
+    const viewport = page.getViewport({scale});
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    page.render({canvasContext: canvas.getContext('2d'), viewport}).promise.then(() => {
+      if(loading) loading.style.display = 'none';
+      canvas.style.display = 'block';
+      const info = document.getElementById('pdfPageInfo');
+      if(info) info.textContent = pdfCurrentPage + ' / ' + pdfTotalPages;
+    });
+  });
+}
+
+function pdfPrevPage(){
+  if(pdfCurrentPage <= 1) return;
+  pdfCurrentPage--;
+  renderPDFPage(pdfCurrentPage);
+}
+function pdfNextPage(){
+  if(pdfCurrentPage >= pdfTotalPages) return;
+  pdfCurrentPage++;
+  renderPDFPage(pdfCurrentPage);
+}
+
+// ==================== RESİM SÜRÜKLEME (Canvas) ====================
+let images = []; // {id, img, x, y, w, h, selected}
+let draggingImg = null;
+let dragOffsetX = 0, dragOffsetY = 0;
+let resizingImg = null;
+let isImageMode = false;
+
+function toggleImageMode(){
+  isImageMode = !isImageMode;
+  const btn = document.getElementById('imageModeBtn');
+  if(btn) btn.classList.toggle('active', isImageMode);
+  showToast(isImageMode ? '🖼️ Resim modu: Resme tıkla, sürükle' : '✏️ Çizim modu');
+}
+
+function handleImageUpload(e){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const maxW = canvas.width * 0.5;
+      const scale = Math.min(maxW / img.width, 1);
+      const w = img.width * scale;
+      const h = img.height * scale;
+      const x = (canvas.width - w) / 2;
+      const y = (canvas.height - h) / 2;
+      images.push({id: Date.now(), img, x, y, w, h, selected: true});
+      isImageMode = true;
+      redrawCanvas();
+      showToast('🖼️ Resim eklendi! Sürükle veya köşeden boyutlandır.');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function redrawCanvas(){
+  if(!ctx || !canvas) return;
+  // Arka planı ve çizimleri çiz
+  drawBackground();
+  if(currentNotebook && currentNotebook.canvasPages && currentNotebook.canvasPages[currentPage]){
+    const bg = new Image();
+    bg.onload = () => {
+      ctx.drawImage(bg, 0, 0);
+      drawImages();
+    };
+    bg.src = currentNotebook.canvasPages[currentPage];
+  } else {
+    drawImages();
+  }
+}
+
+function drawImages(){
+  images.forEach(im => {
+    ctx.drawImage(im.img, im.x, im.y, im.w, im.h);
+    if(im.selected){
+      ctx.strokeStyle = '#14b8a6';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6,3]);
+      ctx.strokeRect(im.x-2, im.y-2, im.w+4, im.h+4);
+      ctx.setLineDash([]);
+      // Resize handle (sağ alt köşe)
+      ctx.fillStyle = '#14b8a6';
+      ctx.fillRect(im.x + im.w - 8, im.y + im.h - 8, 16, 16);
+    }
+  });
+}
+
+function getCanvasPos(e){
+  const r = canvas.getBoundingClientRect();
+  return {x: e.clientX - r.left, y: e.clientY - r.top};
+}
+
+function findImageAt(x, y){
+  for(let i = images.length-1; i >= 0; i--){
+    const im = images[i];
+    if(x >= im.x && x <= im.x+im.w && y >= im.y && y <= im.y+im.h) return im;
+  }
+  return null;
+}
+
+function isOnResizeHandle(im, x, y){
+  return x >= im.x+im.w-12 && x <= im.x+im.w+4 && y >= im.y+im.h-12 && y <= im.y+im.h+4;
+}
+
+// Canvas event handlers - override with image mode support
+function startDraw(e){
+  if(!canvas) return;
+  const p = getCanvasPos(e);
+  if(isImageMode){
+    // Resize handle kontrolü
+    const sel = images.find(im => im.selected);
+    if(sel && isOnResizeHandle(sel, p.x, p.y)){
+      resizingImg = sel;
+      return;
+    }
+    // Resim seçimi/sürükleme
+    const hit = findImageAt(p.x, p.y);
+    images.forEach(im => im.selected = false);
+    if(hit){
+      hit.selected = true;
+      draggingImg = hit;
+      dragOffsetX = p.x - hit.x;
+      dragOffsetY = p.y - hit.y;
+    }
+    redrawCanvas();
+    return;
+  }
+  isDrawing = true;
+  points = [];
+  lastPressure = penSize;
+  points.push({x: p.x, y: p.y});
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+}
+
+let lastX = 0, lastY = 0, lastPressure = 1;
+let points = [];
+
+function draw(e){
+  if(!canvas) return;
+  const p = getCanvasPos(e);
+  if(isImageMode){
+    if(resizingImg){
+      resizingImg.w = Math.max(40, p.x - resizingImg.x);
+      resizingImg.h = Math.max(40, p.y - resizingImg.y);
+      redrawCanvas();
+    } else if(draggingImg){
+      draggingImg.x = p.x - dragOffsetX;
+      draggingImg.y = p.y - dragOffsetY;
+      redrawCanvas();
+    }
+    return;
+  }
+  if(!isDrawing) return;
+  
+  // Smooth çizgi için nokta ekle
+  points.push({x: p.x, y: p.y});
+  
+  if(isEraser){
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.lineWidth = penSize * 5;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    ctx.globalCompositeOperation = 'source-over';
+    return;
+  }
+  
+  // Bezier eğri ile smooth çizim
+  if(points.length >= 3){
+    const len = points.length;
+    const p0 = points[len-3];
+    const p1 = points[len-2];
+    const p2 = points[len-1];
+    const cp1x = (p0.x + p1.x) / 2;
+    const cp1y = (p0.y + p1.y) / 2;
+    const cp2x = (p1.x + p2.x) / 2;
+    const cp2y = (p1.y + p2.y) / 2;
+    
+    // Hız bazlı kalınlık (pressure simulation)
+    const dx = p2.x - p0.x;
+    const dy = p2.y - p0.y;
+    const speed = Math.sqrt(dx*dx + dy*dy);
+    const pressure = Math.max(0.3, Math.min(1.5, 8 / (speed + 1)));
+    const targetWidth = penSize * pressure;
+    lastPressure = lastPressure * 0.7 + targetWidth * 0.3; // smooth transition
+    
+    ctx.lineWidth = lastPressure;
+    ctx.strokeStyle = penColor;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(cp1x, cp1y);
+    ctx.quadraticCurveTo(p1.x, p1.y, cp2x, cp2y);
+    ctx.stroke();
+  }
+  lastX = p.x; lastY = p.y;
+}
+
+function endDraw(){
+  if(isImageMode){
+    if(draggingImg || resizingImg){
+      draggingImg = null; resizingImg = null;
+      flattenImagesToCanvas();
+    }
+    return;
+  }
+  if(!isDrawing) return;
+  isDrawing = false;
+  points = [];
+  // Reset composite after highlighter stroke
+  if(isHighlighter){
+    ctx.globalAlpha = 1.0;
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  savePage();
+}
+
+function flattenImagesToCanvas(){
+  // Tüm görüntüleri çiz ve kaydet
+  drawImages();
+  images = []; // Flatten sonrası temizle
+  savePage();
+}
+
+// Touch desteği image mode için
+function getTouchPos(e){ return getCanvasPos(e.touches[0]); }
+
+// ==================== STARTUP ====================
+window.addEventListener('load', function(){
+  try{ loadAppData(); }catch(e){}
+  try{
+    const savedDark = localStorage.getItem('notblick_dark');
+    if(savedDark === '0') isDark = false;
+    applyTheme();
+  }catch(e){}
+  try{
+    const savedLang = localStorage.getItem('notblick_lang') || 'tr';
+    setLang(savedLang, null);
+  }catch(e){}
+  try{ updateWelcomeName(); }catch(e){}
+  try{ updateCourseProgresses(); }catch(e){}
+  try{ showPage('home'); }catch(e){}
+  if(!userName) setTimeout(openNameModal, 1200);
+  if('Notification' in window && Notification.permission === 'default'){
+    setTimeout(()=>{ const nb = document.getElementById('notifBanner'); if(nb) nb.style.display='flex'; }, 3000);
+  }
+});
+</script>
+</body>
+</html>
